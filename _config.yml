@@ -15,7 +15,8 @@ footer_text: >
 keywords: jekyll, jekyll-theme, academic-website, portfolio-website  # add your own keywords or leave empty
 
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
-icon: 🔥 # the emoji used as the favicon
+icon: https://raw.githubusercontent.com/mecarill/mecarill.github.io/master/assets/img/logochunky.png    #🔥  the emoji used as the favicon
+use_custom_favicon: false # if this is true, you can set favicon path instead of using default emoji
 url: https://mecarill.github.io # the base hostname & protocol for your site
 baseurl:  # the subpath of your site, e.g. /blog/
 last_updated: false # set to true if you want to display last updated in the footer
