@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
+subtitle: <b>PhD Student</b> @ <a href='https://cde.nus.edu.sg/ece/'>National University of Singapore</a>. Address. Contacts. Moto. Etc.
 
 profile:
   align: right
