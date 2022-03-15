@@ -13,5 +13,5 @@ selected_papers: false # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-I am currently a PhD student in the National University of Singapore under the supervision of <a href='https://robbytan.github.io'> Professor Robby Tan </a>. I obtained my Bachelors of Engineering (Mechatronics) from Singapore Institute of Technology/University of Glasgow in 2017 and a Masters of Technology (Intelligent Systems) from NUS-ISS in 2020. My research interest in in Computer Vision, with a focus on vision in adverse conditions such as night-time and rain.
+I am currently a PhD student in the National University of Singapore under the supervision of <a href='https://tanrobby.github.io'> Professor Robby Tan </a>. I obtained my Bachelors of Engineering (Mechatronics) from Singapore Institute of Technology/University of Glasgow in 2017 and a Masters of Technology (Intelligent Systems) from NUS-ISS in 2022. My research interest is in Computer Vision, with a focus on vision in adverse conditions such as night-time and rain.
 
