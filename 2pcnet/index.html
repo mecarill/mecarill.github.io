@@ -123,7 +123,7 @@
                 <h3>
                     Abstract
                 </h3>
-                <image src="imgs/prop.jpg" class="img-responsive" alt="overview"><br>
+                <image src="imgs/prop.png" class="img-responsive" alt="overview"><br>
                 <p class="text-justify">
                     Object detection at night is a challenging problem due to the absence of night image annotations. 
                     Despite several domain adaptation methods, achieving high-precision results remains an issue. 
@@ -148,7 +148,7 @@
                     <image src="imgs/arch_1.jpg" class="img-responsive" alt="overview"><br>
                 </p>
                 <p class="text-justify">
-                    In order to pass this information through the NeRF network, we fit a multivariate Gaussian to the conical frustum and use the integrated positional encoding described above to create the input feature vector to the network. 
+                    2PCNet consists of 2-phases. In phase 1, 
                 </p>
             </div>
         </div>
@@ -160,14 +160,15 @@
                 <h3>
                     Results
                 </h3>
-                
                 <p class="text-justify">
-                    We train NeRF and mip-NeRF on a dataset with images at four different resolutions. Normal NeRF (left) is not capable of learning to represent the same scene at multiple levels of detail, with blurring in close-up shots and aliasing in low resolution views, while mip-NeRF (right) both preserves sharp details in close-ups and correctly renders the zoomed-out images.
-                </p>                
+                    BDD100K Dataset
+                </p>
+                <image src="imgs/bdd100k_qual.png" class="img-responsive" alt="overview"><br>                
                 <br>
                 <p class="text-justify">
-                    We can also manipulate the integrated positional encoding by using a larger or smaller radius than the true pixel footprint, exposing the continuous level of detail learned within a single network:
+                    SHIFT Dataset
                 </p>     
+                <image src="imgs/shift_qual.png" class="img-responsive" alt="overview"><br>  
 
             </div>
         </div>
