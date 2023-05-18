@@ -148,7 +148,10 @@
                     <image src="imgs/arch_1.jpg" class="img-responsive" alt="overview"><br>
                 </p>
                 <p class="text-justify">
-                    2PCNet consists of 2-phases. In phase 1, 
+                    2PCNet consists of: A student network is trained on both the labelled daytime image, which has been augmented with NightAug, and unlabelled nighttime images. 
+                    A teacher network which is the exponential moving average (EMA) of the student and provides matched pseudo-labels for unsupervised loss. 
+                    We combine the high-confidence pseudo-labels from the teacher in phase 1 and the low-confidence pseudo-labels derived from the student RPN proposals.
+                    This allows matched pseudo-labels to be produced in phase 2 for the weighted consistency loss guiding the student to learn nighttime features.
                 </p>
             </div>
         </div>
