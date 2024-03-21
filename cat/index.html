@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>2PCNet</title>
+    <title>CAT</title>
 
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,20 +14,20 @@
     <!-- <base href="/"> -->
 
         <!--FACEBOOK-->
-    <meta property="og:image" content="https://mikhailkennerley.com/2pcnet/imgs/2pcnet.webp">
+    <meta property="og:image" content="https://mikhailkennerley.com/cat/imgs/teaser.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="682">
     <meta property="og:image:height" content="682">
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://mikhailkennerley.com/2pcnet/"/>
-    <meta property="og:title" content="2PCNet" />
-    <meta property="og:description" content="2PCNet: Two-Phase Consistency Training for Day-to-Night Unsupervised Domain Adaptive Object Detection" />
+    <meta property="og:url" content="https://mikhailkennerley.com/cat/"/>
+    <meta property="og:title" content="CAT" />
+    <meta property="og:description" content="CAT: Exploiting Inter-Class Dynamics for Domain Adaptive Object Detection" />
 
         <!--TWITTER-->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="2pcnet" />
-    <meta name="twitter:description" content="2PCNet: Two-Phase Consistency Training for Day-to-Night Unsupervised Domain Adaptive Object Detection" />
-    <meta name="twitter:image" content="https://mikhailkennerley.com/2pcnet/imgs/2pcnet.webp" />
+    <meta name="twitter:title" content="CAT" />
+    <meta name="twitter:description" content="CAT: Exploiting Inter-Class Dynamics for Domain Adaptive Object Detection" />
+    <meta name="twitter:image" content="https://mikhailkennerley.com/cat/imgs/teaser.png" />
 
 
 <!--     <link rel="apple-touch-icon" href="apple-touch-icon.png"> -->
@@ -53,9 +53,9 @@
     <div class="container" id="main">
         <div class="row">
             <h2 class="col-md-12 text-center">
-                <b>2PCNet</b>: Two-Phase Consistency Training for Day-to-Night Unsupervised Domain Adaptive Object Detection</br> 
+                <b>CAT</b>: Exploiting Inter-Class Dynamics for Domain Adaptive Object Detection</br> 
                 <small>
-                    CVPR 2023
+                    CVPR 2024
                 </small>
             </h2>
         </div>
@@ -95,21 +95,24 @@
                 <div class="col-md-4 col-md-offset-4 text-center">
                     <ul class="nav nav-pills nav-justified">
                         <li>
-                            <a href="https://arxiv.org/abs/2303.13853">
+                            <!--  <a href="https://arxiv.org/"> -->
                             <image src="img/paper_img.png" height="60px">
                                 <h4><strong>Paper</strong></h4>
+                                Coming soon...
                             </a>
                         </li>
                         <li>
-                            <a href="https://youtu.be/NkwfZQ3-nqk">
+                            <!-- <a href="https://youtube.com"> -->
                             <image src="img/youtube_icon.png" height="60px">
                                 <h4><strong>Video</strong></h4>
+                                Coming soon...
                             </a>
                         </li>
                         <li>
-                            <a href="https://github.com/mecarill/2pcnet">
+                            <!--  <a href="https://github.com/mecarill/2pcnet"> -->
                             <image src="img/github.png" height="60px">
                                 <h4><strong>Code</strong></h4>
+                                Coming soon...
                             </a>
                         </li>
                     </ul>
@@ -121,9 +124,9 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
             <figure>
-                <image src="imgs/prop.png" class="img-responsive" alt="overview">
+                <image src="imgs/icrm_compare.gif" class="img-responsive" alt="overview">
                     <p style="text-align:center; font-style:italic; font-size:smaller;">
-                        2PCNet is able to overcome the error-propagation present in the Mean Teacher framework for nighttime scenes.
+                        Inter-Class Relation matrix with (Left) and without (Right) Inter-Class Loss. Multiple minority classes are incorrectly predicted as car, a majority class, without Inter-Class Loss.
                     </p>
                 </figure>
 
@@ -131,15 +134,16 @@
                     Abstract
                 </h3>
                 <p class="text-justify">
-                    Object detection at night is a challenging problem due to the absence of night image annotations. 
-                    Despite several domain adaptation methods, achieving high-precision results remains an issue. 
-                    False-positive error propagation is still observed in methods using the well-established student-teacher framework, particularly for small-scale and low-light objects. 
-                    This paper proposes a two-phase consistency unsupervised domain adaptation network, 2PCNet, to address these issues. 
-                    The network employs high-confidence bounding-box predictions from the teacher in the first phase and appends them to the student's region proposals for the teacher to re-evaluate in the second phase, resulting in a combination of high and low confidence pseudo-labels. 
-                    The night images and pseudo-labels are scaled-down before being used as input to the student, providing stronger small-scale pseudo-labels. 
-                    To address errors that arise from low-light regions and other night-related attributes in images, we propose a night-specific augmentation pipeline called NightAug. 
-                    This pipeline involves applying random augmentations, such as glare, blur, and noise, to daytime images. 
-                    Experiments on publicly available datasets demonstrate that our method achieves superior results to state-of-the-art methods by 20%, and to supervised models trained directly on the target data.
+                    Domain adaptive object detection adapts detection models to domains where annotated data is unavailable.
+Existing methods have been proposed to address the domain gap using the semi-supervised student-teacher framework.
+However, a fundamental issue arises from the class imbalance in the labelled training set, which can result in inaccurate pseudo-labels.
+The relationship between classes, especially where one class is a majority and the other minority, has a large impact on class bias.
+We propose Class-Aware Teacher (CAT) to address the class bias issue in the domain adaptation setting.
+In our work, we approximate the class relationships with our Inter-Class Relation module (ICRm) and exploit it to reduce the bias within the model.
+In this way, we are able to apply augmentations to highly related classes, both inter- and intra-domain, to boost the performance of minority classes while having minimal impact on majority classes.
+We further reduce the bias by implementing a class-relation weight to our classification loss. 
+Experiments conducted on various datasets and ablation studies show that our method is able to address the class bias in the domain adaptation setting.
+On the Cityscapes $\to$ Foggy~Cityscapes dataset, we attained a 52.5 mAP, a substantial improvement over the 51.2 mAP achieved by the state-of-the-art method.
                 </p>
             </div>
         </div>
@@ -151,13 +155,13 @@
                     Framework
                 </h3>
                 <p style="text-align:center;">
-                    <image src="imgs/arch_1.jpg" class="img-responsive" alt="overview"><br>
+                    <image src="imgs/arch.png" class="img-responsive" alt="overview"><br>
                 </p>
                 <p class="text-justify">
-                    2PCNet consists of: A student network is trained on both the labelled daytime image, which has been augmented with NightAug, and unlabelled nighttime images. 
-                    A teacher network which is the exponential moving average (EMA) of the student and provides matched pseudo-labels for unsupervised loss. 
-                    We combine the high-confidence pseudo-labels from the teacher in phase 1 and the low-confidence pseudo-labels derived from the student RPN proposals.
-                    This allows matched pseudo-labels to be produced in phase 2 for the weighted consistency loss guiding the student to learn nighttime features.
+                    (a) Class-Aware Teacher (CAT) consists of: a student-teacher network; Inter-Class Relation module (ICRm), 
+                    which estimates inter-class biases; Class-Relation Augmentation, which augments images to reduce the inter-class biases by mixing the cropped instances of related classes; 
+                    and Inter-Class Loss, which emphasises the loss on highly misclassified minority classes. 
+                    (b) Class-Relation Augmentation demonstrated on majority (Car) and minority (Bus) classes.
                 </p>
             </div>
         </div>
@@ -170,15 +174,41 @@
                     Results
                 </h3>
                 <p class="text-justify">
-                    BDD100K Dataset
+                    Qualitative
                 </p>
-                <image src="imgs/bdd100k_qual.png" class="img-responsive" alt="overview"><br>                
-                <br>
+                <image src="imgs/abla.png" class="img-responsive" alt="overview"><br>     
+                    <p style="text-align:center; font-style:italic; font-size:smaller;">
+                        We show the qualitative results of AT and CAT on the top and bottom, respectively. <br>
+                        CAT is able to address misclassification (col 1,2,4), false negatives (col 1,3), and false positives (col 1,3,4). <br>
+                        Box colour represents: Green > true positives, Blue > misclassified, Red > false negatives, Pink > false positives.
+                    </p>           
+                    <br>
+                    <p class="text-justify">
+                        Cityscapes to Foggy Cityscapes
+                    </p>     
+                    <image src="imgs/cityscapes.png" class="img-responsive" alt="overview"><br>  
+                        <br>
                 <p class="text-justify">
-                    SHIFT Dataset
+                    PASCAL VOC to Clipart1k
                 </p>     
-                <image src="imgs/shift_qual.png" class="img-responsive" alt="overview"><br>  
+                <image src="imgs/voc.png" class="img-responsive" alt="overview"><br>  
 
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Video
+                </h3>
+                <div class="text-center">
+                    Coming soon...
+                   <!--
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/embed/EpH175PY1A0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                    -->
+                </div>
             </div>
         </div>
             
