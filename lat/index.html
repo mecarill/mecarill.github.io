@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets</title>
+
+    <link rel="shortcut icon" type="image/png" href="../favicon.png">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <base href="/"> -->
+
+        <!--FACEBOOK-->
+    <meta property="og:image" content="https://mikhailkennerley.com/lat/imgs/teaser.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="682">
+    <meta property="og:image:height" content="682">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mikhailkennerley.com/lat/"/>
+    <meta property="og:title" content="Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets" />
+    <meta property="og:description" content="" />
+
+        <!--TWITTER-->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Briding Annotation Gaps" />
+    <meta name="twitter:description" content="Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets" />
+    <meta name="twitter:image" content="https://mikhailkennerley.com/lat/imgs/teaser.png" />
+
+
+<!--     <link rel="apple-touch-icon" href="apple-touch-icon.png"> -->
+  <!-- <link rel="icon" type="image/png" href="img/seal_icon.png"> -->
+    <!-- Place favicon.ico in the root directory -->
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
+    <link rel="stylesheet" href="css/app.css">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
+    
+    <script src="js/app.js"></script>
+</head>
+
+<body>
+    <div class="container" id="main">
+        <div class="row">
+            <h2 class="col-md-12 text-center">
+                <b></b>Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets</br> 
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <ul class="list-inline">
+                    <li>
+                        <a href="https://mikhailkennerley.com/">
+                          Mikhail Kennerley
+                        </a>
+                        </br>National University of Singapore, I2R A*STAR
+                    </li>
+                    <li>
+                        <a href="https://angelicaiaviles.wordpress.com/">
+                            Angelica Alives-Reviro
+                        </a>
+                        </br>Tshinghua Univeristy
+                    </li>
+                    <li>
+                        <a href="https://www.damtp.cam.ac.uk/person/cbs31">
+                            Carola-Bibiane Schönlieb
+                        </a>
+                        </br>University of Cambridge
+                    </li>
+                    <li>
+                        <a href="https://tanrobby.github.io/">
+                          Robby T. Tan
+                        </a>
+                        </br>ASUS Intelligent Cloud Services, National University of Singapore
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <div class="row">
+                <div class="col-md-4 col-md-offset-4 text-center">
+                    <ul class="nav nav-pills nav-justified">
+                        <li>
+                            <a href="https://arxiv.org/">
+                            <image src="img/paper_img.png" height="60px">
+                                <h4><strong>Paper</strong></h4>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+            <figure>
+                <image src="imgs/annot2.png" class="img-responsive" alt="overview">
+                    <p style="text-align:center; font-style:italic; font-size:smaller;">
+                        We show the annotation differences between three road-based datasets and how classes are semantically misaligned.
+                    </p>
+                </figure>
+
+                <h3>
+                    Abstract
+                </h3>
+                <p class="text-justify">
+                    Combining multiple object detection datasets offers a path to improved generalisation but is hindered by inconsistencies in class semantics and bounding box
+annotations. Some methods to address this assume shared label taxonomies and
+address only spatial inconsistencies; others require manual relabelling, or produce
+a unified label space, which may be unsuitable when a fixed target label space is
+required. We propose Label-Aligned Transfer (LAT), a label transfer framework
+that systematically projects annotations from diverse source datasets into the label
+space of a target dataset. LAT begins by training dataset-specific detectors to
+generate pseudo-labels, which are then combined with ground-truth annotations via
+a Privileged Proposal Generator (PPG) that replaces the region proposal network
+in two-stage detectors. To further refine region features, a Semantic Feature Fusion
+(SFF) module injects class-aware context and features from overlapping proposals
+using a confidence-weighted attention mechanism. This pipeline preserves datasetspecific annotation granularity while enabling many-to-one label space transfer
+across heterogeneous datasets, resulting in a semantically and spatially aligned representation suitable for training a downstream detector. LAT thus jointly addresses
+both class-level misalignments and bounding box inconsistencies without relying
+on shared label spaces or manual annotations. Across multiple benchmarks, LAT
+demonstrates consistent improvements in target-domain detection performance,
+achieving gains of up to +4.8AP over semi-supervised baselines.
+</p>
+            </div>
+        </div>
+
+            
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Framework
+                </h3>
+                <p style="text-align:center;">
+                    <image src="imgs/arch_06.png" class="img-responsive" alt="overview"><br>
+                </p>
+                <p class="text-justify">
+                    Overview of the LAT architecture. Dataset-specific pseudo-labels and ground-truth annotations are combined via the Privileged Proposal Generator (PPG), which replaces the region proposal network. A frozen Vision Foundation Model (VFM) extracts shared image features. The Semantic Feature Fusion (SFF) module then refines region features by injecting class-aware information using attention over overlapping proposals. We filter the classification output to compute loss on only the current datasets label space.
+                </p>
+            </div>
+        </div>
+            
+
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Results
+                </h3>
+                <p class="text-justify">
+                <h4>Qualitative</h4>
+                </p>
+                <image src="imgs/img_compare3.png" class="img-responsive" alt="overview"><br>     
+                    <p style="text-align:center; font-style:italic; font-size:smaller;">
+                        We show the qualitative results of basic pseudo-labeling and LAT on the bottom row compared to the ground-truth. <br>
+                        LAT is able to recover missing information from the proposed psuedo-label in the target label space by utalising ground-truth information. <br>
+                    </p>           
+                    <br>
+                    <p class="text-justify">
+                        <h4>High-Low Class Setting Experiment</h4>
+                    </p>     
+                    <image src="imgs/class_exp.png" class="img-responsive" alt="overview"><br>  
+                        <br>
+                <p class="text-justify">
+                <h4>Large-Small Dataset Setting Experiment</h4>
+                </p>     
+                <image src="imgs/dataset_exp.png" class="img-responsive" alt="overview"><br>  
+
+            </div>
+        </div>
+
+            
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Citation
+                </h3>
+                <div class="form-group col-md-10 col-md-offset-1">
+                    <textarea id="bibtex" class="form-control" readonly>
+@InProceedings{kennerley2024lat,
+    author    = {Kennerley, Mikhail and Alives-Reviro,Angelica and Schönlieb, Carola-Bibiane and Tan, Robby T.},
+    title     = {Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets},
+    booktitle = {arxiv},
+    year      = {2025},
+}
+}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
