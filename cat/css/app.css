@@ -103,41 +103,45 @@ small {
 
 /* Nav pills (Paper/Video/Code links) */
 .nav > li > a,
+.nav > li > a:hover,
+.nav > li > a:focus,
+.nav > li > a:active,
 .nav-pills > li,
 .nav-pills > li > a,
+.nav-pills > li > a:hover,
+.nav-pills > li > a:focus,
+.nav-pills > li > a:active,
 .nav-justified > li,
-.nav-justified > li > a {
+.nav-justified > li > a,
+.nav-justified > li > a:hover,
+.nav-justified > li > a:focus,
+.nav-justified > li > a:active {
   border: none !important;
   border-left: none !important;
   border-right: none !important;
   border-bottom: none !important;
   border-top: none !important;
+  outline: none !important;
+  outline-width: 0 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  -webkit-focus-ring-color: transparent !important;
 }
 
 .nav-pills > li > a {
   color: var(--text-muted);
-  background-color: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  text-decoration: none !important;
   transition: color 0.15s ease;
 }
 
 .nav-pills > li > a:hover,
 .nav-pills > li > a:focus {
   color: var(--accent);
-  background-color: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  text-decoration: none !important;
 }
 
 .nav-pills > li.active > a,
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
-  background-color: transparent !important;
   color: var(--accent);
 }
 
@@ -147,30 +151,36 @@ small {
 }
 
 .nav-pills > li > a:hover h4,
-.nav-pills > li > a:hover strong {
+.nav-pills > li > a:hover strong,
+.nav-pills > li > a:focus h4,
+.nav-pills > li > a:focus strong {
   color: var(--accent);
 }
 
-/* Remove blue border/underline from linked images */
+/* Remove blue border/underline from all links and images in nav */
 a image,
 a img {
-  border: none !important;
-  outline: none !important;
+  border: 0 !important;
+  outline: 0 !important;
 }
 
 a:hover image,
 a:hover img,
 a:focus image,
-a:focus img {
-  border: none !important;
-  outline: none !important;
+a:focus img,
+a:active image,
+a:active img {
+  border: 0 !important;
+  outline: 0 !important;
 }
 
-.nav a,
-.nav a:hover,
-.nav a:focus {
+.nav *,
+.nav *:hover,
+.nav *:focus,
+.nav *:active {
   border: none !important;
   outline: none !important;
+  outline-width: 0 !important;
   text-decoration: none !important;
   background-color: transparent !important;
   box-shadow: none !important;

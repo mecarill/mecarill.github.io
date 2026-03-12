@@ -29,6 +29,40 @@ html, body {
   line-height: 1.7;
 }
 
+/* Nav bar */
+.navbar {
+  display: flex;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.navbar a {
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.navbar a:hover {
+  color: var(--accent);
+}
+
+.navbar a::before {
+  content: '[';
+  color: var(--border);
+  margin-right: 1px;
+}
+
+.navbar a::after {
+  content: ']';
+  color: var(--border);
+  margin-left: 1px;
+}
+
+.navbar a.active {
+  color: var(--accent);
+}
+
 /* Container */
 .container {
   max-width: 780px;
@@ -174,6 +208,26 @@ strong {
 
 .section > p {
   margin-bottom: 16px;
+}
+
+/* Intro block - indented text with left accent line */
+.intro-block {
+  border-left: 2px solid var(--border);
+  padding: 12px 0 12px 18px;
+  margin-bottom: 16px;
+}
+
+.intro-block p {
+  margin-bottom: 12px;
+}
+
+.intro-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* Remove focus outline */
+*:focus {
+  outline: none;
 }
 
 /* Lists */

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Research - Mikhail Kennerley</title>
+  <meta name="author" content="Mikhail Kennerley">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="../stylesheet.css">
+  <link rel="shortcut icon" type="image/png" href="../favicon.png">
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Nav -->
+    <nav class="navbar">
+      <a href="../">about</a>
+      <a href="../research/" class="active">research</a>
+    </nav>
+
+    <!-- Research -->
+    <div class="section">
+      <heading>// research</heading>
+      <div class="intro-block">
+        <p>
+          My research focuses on learning robust visual models under imperfect supervision, particularly for object detection and semantic segmentation. In real-world settings, visual datasets are often noisy, incomplete, imbalanced, or drawn from multiple sources with differing annotation schemes. I study how vision systems can be trained effectively under these conditions, where both data quality and domain shift present significant challenges.
+        </p>
+        <p>
+          A central theme of my work is exploring the interplay between model-centric and data-centric approaches to domain adaptation. On the model side, I develop learning strategies that improve robustness to domain shift and class imbalance. On the data side, I investigate methods for aligning and unifying heterogeneous datasets, enabling models to learn from diverse sources despite inconsistencies in labels, distributions, and annotation standards.
+        </p>
+        <p>
+          More recently, I have become interested in the role of generative synthetic data and emerging world models as tools for improving visual learning. By generating controllable training environments and augmenting datasets with structured synthetic data, these approaches offer new opportunities to study generalization and robustness in vision systems operating under distribution shift.
+        </p>
+      </div>
+
+      <heading>// publications</heading>
+      <!-- Paper: LAT -->
+      <div class="paper">
+        <div class="paper-img">
+          <img src="../images/lat.png" alt="LAT">
+        </div>
+        <div class="paper-info">
+          <a href="http://mikhailkennerley.com/lat" class="paper-title">
+            Bridging Annotation Gaps: Transferring Labels to Align Object Detection Datasets
+          </a>
+          <div class="paper-authors">
+            <strong>Mikhail Kennerley</strong>,
+            <a href="https://angelicaiaviles.wordpress.com/">Angelica Alives-Reviro</a>,
+            <a href="https://www.damtp.cam.ac.uk/person/cbs31">Carola-Bibiane Schönlieb</a>,
+            <a href="https://tanrobby.github.io/">Robby T. Tan</a>
+          </div>
+          <span class="venue">CVPR 2026</span>
+          <div class="paper-links">
+            <a href="http://mikhailkennerley.com/lat">project page</a>
+          </div>
+          <p class="paper-desc">
+            Label Transfer from multiple source object detection datasets to a target label space. Code soon to be released.
+          </p>
+        </div>
+      </div>
+
+      <!-- Paper: CAT -->
+      <div class="paper">
+        <div class="paper-img">
+          <img src="../images/cat.gif" alt="CAT">
+        </div>
+        <div class="paper-info">
+          <a href="http://mikhailkennerley.com/cat" class="paper-title">
+            CAT: Exploiting Inter-Class Dynamics for Domain Adaptive Object Detection
+          </a>
+          <div class="paper-authors">
+            <strong>Mikhail Kennerley</strong>,
+            <a href="https://scholar.google.com.sg/citations?user=kt0nCB0AAAAJ&hl=en">Wang Jian-Gang</a>,
+            <a href="https://scholar.google.com/citations?user=IqAJttsAAAAJ&hl=en">Bharadwaj Veeravalli</a>,
+            <a href="https://tanrobby.github.io/">Robby T. Tan</a>
+          </div>
+          <span class="venue">CVPR 2024</span>
+          <div class="paper-links">
+            <a href="http://mikhailkennerley.com/cat">project page</a>
+            <a href="https://arxiv.org/abs/2403.19278">arXiv</a>
+            <a href="https://github.com/mecarill/classawareteacher">code</a>
+          </div>
+          <p class="paper-desc">
+            Using inter-class relations to address the class-imbalance problem in domain adaptive object detection.
+          </p>
+        </div>
+      </div>
+
+      <!-- Paper: 2PCNet -->
+      <div class="paper">
+        <div class="paper-img">
+          <img src="../images/2pcnet.webp" alt="2PCNet">
+        </div>
+        <div class="paper-info">
+          <a href="http://mikhailkennerley.com/2pcnet" class="paper-title">
+            2PCNet: Two-Phase Consistency Training for Day-to-Night Unsupervised Domain Adaptive Object Detection
+          </a>
+          <div class="paper-authors">
+            <strong>Mikhail Kennerley</strong>,
+            <a href="https://scholar.google.com.sg/citations?user=kt0nCB0AAAAJ&hl=en">Wang Jian-Gang</a>,
+            <a href="https://scholar.google.com/citations?user=IqAJttsAAAAJ&hl=en">Bharadwaj Veeravalli</a>,
+            <a href="https://tanrobby.github.io/">Robby T. Tan</a>
+          </div>
+          <span class="venue">CVPR 2023</span>
+          <div class="paper-links">
+            <a href="http://mikhailkennerley.com/2pcnet">project page</a>
+            <a href="https://arxiv.org/abs/2303.13853">arXiv</a>
+            <a href="https://github.com/mecarill/2pcnet">code</a>
+          </div>
+          <p class="paper-desc">
+            Utilising low-confidence samples in the student-teacher network to learn more of the target domain.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Mikhail Kennerley 2026</p>
+    </div>
+
+  </div>
+</body>
+</html>
