@@ -479,8 +479,7 @@ li::marker {
   }
 
   .info-row {
-    flex-direction: column;
-    gap: 0;
+    flex-wrap: wrap;
   }
 
   .info-key {
