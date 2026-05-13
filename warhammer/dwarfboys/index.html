@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hearthband — Leagues of Votann Stratagems</title>
+  <meta name="description" content="Leagues of Votann Hearthband detachment stratagem reference for Warhammer 40k 10th edition." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body { background: #08090c; }
+    body { font-family: 'Rajdhani', system-ui, sans-serif; }
+    #root:empty::before {
+      content: 'Initializing Voidsmith Protocols...';
+      display: block;
+      color: #57534e;
+      font-family: 'Russo One', sans-serif;
+      letter-spacing: 0.2em;
+      text-align: center;
+      padding: 4rem 1rem;
+      font-size: 12px;
+    }
+    .hex-bg {
+      background-image:
+        linear-gradient(60deg, rgba(199, 130, 42, 0.04) 25%, transparent 25.5%, transparent 75%, rgba(199, 130, 42, 0.04) 75%),
+        linear-gradient(60deg, rgba(199, 130, 42, 0.04) 25%, transparent 25.5%, transparent 75%, rgba(199, 130, 42, 0.04) 75%);
+      background-size: 40px 70px;
+      background-position: 0 0, 20px 35px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
+
+    // ============================================================
+    // ICONS
+    // ============================================================
+    const Icon = ({ d, size = 24, strokeWidth = 2, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+        className={className}>{d}</svg>
+    );
+    const Crown = (p) => <Icon {...p} d={<polygon points="2 18 5 8 9 14 12 6 15 14 19 8 22 18 2 18"/>} />;
+    const Footprints = (p) => <Icon {...p} d={<>
+      <path d="M4 16v-2a3 3 0 0 1 3-3h.01a3 3 0 0 1 3 3v2"/>
+      <path d="M5 20h4"/>
+      <path d="M14 17v-2a3 3 0 0 1 3-3h.01a3 3 0 0 1 3 3v2"/>
+      <path d="M15 21h4"/>
+    </>} />;
+    const Crosshair = (p) => <Icon {...p} d={<>
+      <circle cx="12" cy="12" r="9"/>
+      <line x1="12" y1="2" x2="12" y2="6"/>
+      <line x1="12" y1="18" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="6" y2="12"/>
+      <line x1="18" y1="12" x2="22" y2="12"/>
+      <circle cx="12" cy="12" r="2"/>
+    </>} />;
+    const Hammer = (p) => <Icon {...p} d={<>
+      <path d="M15 12l-8.5 8.5a2.121 2.121 0 1 1-3-3L12 9"/>
+      <path d="M17.64 15L22 10.64"/>
+      <path d="M20.91 11.7l-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>
+    </>} />;
+    const Swords = (p) => <Icon {...p} d={<>
+      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+      <line x1="13" y1="19" x2="19" y2="13"/>
+      <line x1="16" y1="16" x2="20" y2="20"/>
+      <line x1="19" y1="21" x2="21" y2="19"/>
+      <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/>
+      <line x1="5" y1="14" x2="9" y2="18"/>
+    </>} />;
+    const ChevronDown = (p) => <Icon {...p} d={<polyline points="6 9 12 15 18 9"/>} />;
+    const ChevronUp = (p) => <Icon {...p} d={<polyline points="18 15 12 9 6 15"/>} />;
+    const Hexagon = (p) => <Icon {...p} d={<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>} />;
+    const Cog = (p) => <Icon {...p} d={<>
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/>
+    </>} />;
+
+    // ============================================================
+    // STRATAGEM DATA  (Wahapedia canonical wording)
+    // slots: ["turn:phase"] – "my:any" / "opponent:any" cover all phases
+    // ============================================================
+    const STRATAGEMS = [
+      // ---------- HEARTHBAND ----------
+      {
+        name: "Brëkkeknots",
+        source: "Hearthband",
+        type: "Battle Tactic",
+        cp: 1,
+        ypSpend: false,
+        slots: ["opponent:shooting", "my:fight", "opponent:fight"],
+        when: "Your opponent's Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+        target: "One KÂHL, ÛTHAR THE DESTINED or EINHYR HEARTHGUARD unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the end of the phase, models in your unit have a 4+ invulnerable save.",
+      },
+      {
+        name: "Sure of Purpose",
+        source: "Hearthband",
+        type: "Strategic Ploy",
+        cp: 1,
+        ypSpend: false,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase.",
+        target: "One LEAGUES OF VOTANN unit from your army that has not been selected to fight this phase.",
+        effect: "Until the end of the phase, each time a model in your unit makes a Pile-in or Consolidation move, it can move up to 6\" instead of up to 3\".",
+      },
+      {
+        name: "Superior Craftsmanship",
+        source: "Hearthband",
+        type: "Battle Tactic",
+        cp: 2,
+        ypSpend: false,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase.",
+        target: "One LEAGUES OF VOTANN unit from your army that has not been selected to fight this phase.",
+        effect: "Until the end of the phase, each time a model in your unit makes an attack that targets a MONSTER or VEHICLE unit, add 1 to the Damage characteristic of that attack.",
+      },
+      {
+        name: "Unyielding Aggression",
+        source: "Hearthband",
+        type: "Strategic Ploy",
+        cp: 1,
+        ypSpend: false,
+        slots: ["my:movement"],
+        when: "Your Movement phase, just after a LEAGUES OF VOTANN INFANTRY unit from your army Falls Back.",
+        target: "That LEAGUES OF VOTANN INFANTRY unit.",
+        effect: "Until the end of the turn, your unit is eligible to shoot and declare a charge in a turn in which it Fell Back.",
+      },
+      {
+        name: "Materialisation Matrices",
+        source: "Hearthband",
+        type: "Strategic Ploy",
+        cp: 1,
+        ypSpend: false,
+        slots: ["my:movement"],
+        when: "The Reinforcements step of your Movement phase.",
+        target: "One LEAGUES OF VOTANN unit from your army that is in Reserves and has the Deep Strike ability.",
+        effect: "Until the end of the phase, when your unit is set up on the battlefield using the Deep Strike ability, it can be set up anywhere on the battlefield that is more than 6\" horizontally away from all enemy units.",
+        restrictions: "Until the end of the turn, your unit is not eligible to declare a charge.",
+      },
+      {
+        name: "Fury of the Hearth",
+        source: "Hearthband",
+        type: "Battle Tactic",
+        cp: 1,
+        ypSpend: true,
+        slots: ["my:shooting"],
+        when: "Your Shooting phase.",
+        target: "One EINHYR HEARTHGUARD unit from your army that has not been selected to shoot this phase.",
+        effect: "Until the end of the phase, improve the Strength characteristic of ranged weapons equipped by models in your unit by 1. If you spend 1YP, until the end of the phase, ranged weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability as well.",
+      },
+
+      // ---------- CORE STRATAGEMS ----------
+      {
+        name: "Command Re-roll",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        slots: ["my:any", "opponent:any"],
+        when: "Any phase, just after you have made a Hit roll, a Wound roll, a Damage roll, a saving throw, an Advance roll, a Charge roll, a Desperate Escape test, a Hazardous test, or just after you have rolled the dice to determine the number of attacks made with a weapon, for an attack, model or unit from your army.",
+        target: "That unit or model from your army.",
+        effect: "You re-roll that roll, test or saving throw.",
+      },
+      {
+        name: "Counter-Offensive",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase, just after an enemy unit has fought.",
+        target: "One unit from your army that is within Engagement Range of one or more enemy units and that has not been selected to fight this phase.",
+        effect: "Your unit fights next.",
+      },
+      {
+        name: "Epic Challenge",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase, when a unit from your army with one or more Attached units is selected to fight.",
+        target: "One CHARACTER model in your unit.",
+        effect: "Until the end of the phase, all melee attacks made by that model have the [PRECISION] ability.",
+      },
+      {
+        name: "Insane Bravery",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        slots: ["my:command"],
+        when: "Battle-shock step of your Command phase, just before you take a Battle-shock test for a unit from your army.",
+        target: "That unit from your army.",
+        effect: "Your unit automatically passes that Battle-shock test.",
+        restrictions: "You cannot use this Stratagem more than once per battle.",
+      },
+      {
+        name: "Grenade",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        slots: ["my:shooting"],
+        when: "Your Shooting phase.",
+        target: "One GRENADES unit from your army (excluding units that Advanced, Fell Back or have shot this turn) that is not within Engagement Range of one or more enemy units.",
+        effect: "Select one GRENADES model in your unit and one enemy unit that is not within Engagement Range of any units from your army and is within 8\" of and visible to your GRENADES model. Roll six D6: for each 4+, that enemy unit suffers 1 mortal wound.",
+      },
+      {
+        name: "Tank Shock",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["my:charge"],
+        when: "Your Charge phase, just after a VEHICLE unit from your army ends a Charge move within Engagement Range of one or more enemy units.",
+        target: "That VEHICLE unit and one enemy unit it is within Engagement Range of.",
+        effect: "Select one melee weapon equipped by a model in your VEHICLE unit and roll a number of D6 equal to that weapon's Strength characteristic. If that Strength characteristic is greater than that enemy unit's Toughness characteristic, roll two additional D6. For each 5+, that enemy unit suffers 1 mortal wound (to a maximum of 6 mortal wounds).",
+      },
+      {
+        name: "Rapid Ingress",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["opponent:movement"],
+        when: "End of your opponent's Movement phase.",
+        target: "One unit from your army that is in Reserves.",
+        effect: "Your unit can arrive on the battlefield as if it were the Reinforcements step of your Movement phase.",
+        restrictions: "You cannot use this Stratagem to enable a unit to arrive on the battlefield during a battle round it would not normally be able to do so in.",
+      },
+      {
+        name: "Fire Overwatch",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["opponent:movement", "opponent:charge"],
+        when: "Your opponent's Movement or Charge phase, just after an enemy unit is set up or when an enemy unit starts or ends a Normal, Advance, Fall Back or Charge move.",
+        target: "One unit from your army that is within 24\" of that enemy unit and that would be eligible to shoot if it were your Shooting phase.",
+        effect: "Your unit can shoot that enemy unit as if it were your Shooting phase. Until the end of the phase, each time a model in your unit makes a ranged attack, an unmodified Hit roll of 6 is required to score a hit, irrespective of the attacking weapon's Ballistic Skill or any modifiers.",
+        restrictions: "You can only use this Stratagem once per turn.",
+      },
+      {
+        name: "Smoke",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        slots: ["opponent:shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One SMOKE unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the end of the phase, all models in your unit have the Benefit of Cover and the Stealth ability.",
+      },
+      {
+        name: "Go to Ground",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        slots: ["opponent:shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One INFANTRY unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the end of the phase, all models in your unit have a 6+ invulnerable save and have the Benefit of Cover.",
+      },
+      {
+        name: "Heroic Intervention",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        slots: ["opponent:charge"],
+        when: "Your opponent's Charge phase, just after an enemy unit ends a Charge move.",
+        target: "One unit from your army that is within 6\" of that enemy unit and that would be eligible to declare a charge against that enemy unit if it were your Charge phase.",
+        effect: "Your unit now declares a charge that targets only that enemy unit, and you resolve that charge as if it were your Charge phase.",
+      },
+    ];
+
+    // ============================================================
+    // ARMY RULES (Wahapedia canonical)
+    // ============================================================
+    const ARMY_RULES = {
+      prioritised: {
+        title: "Prioritised Efficiency",
+        subtitle: "Army Rule · LEAGUES OF VOTANN",
+        intro: "Your units have ONE of two abilities depending on your current Yield Points (YP). At the start of the battle, units have Hostile Acquisition until your next Command phase. At the end of each Command phase: if you have fewer than 7YP, units have Hostile Acquisition; if you have 7YP or more, units have Fortify Takeover.",
+        modes: [
+          {
+            name: "Hostile Acquisition",
+            cond: "Active while you have < 7 YP",
+            bullets: [
+              "Attacks targeting an enemy unit within range of one or more objective markers: +1 to the Hit roll.",
+              "You can re-roll Advance and Charge rolls made for this unit.",
+            ],
+          },
+          {
+            name: "Fortify Takeover",
+            cond: "Active while you have ≥ 7 YP",
+            bullets: [
+              "While this unit is within range of one or more objective markers you control, attacks made by this unit get +1 to the Hit roll.",
+              "If an attack's Strength is greater than this unit's Toughness and this unit is not a VEHICLE: subtract 1 from the Wound roll.",
+            ],
+          },
+        ],
+        yp: {
+          title: "Yield Points",
+          bullets: [
+            "End of each Command phase: gain 1YP if you control one or more objective markers within your deployment zone.",
+            "From battle round 2 onwards, also gain 1 additional YP for each of these you satisfy: control 1+ objective outside your DZ; control 2+ outside your DZ; control more objectives than your opponent.",
+            "YP gained in your turn are gained before checking which ability is active.",
+          ],
+        },
+      },
+      detachment: {
+        title: "Methodical Annihilation",
+        subtitle: "Detachment Rule · Hearthband",
+        body: "Each time a LEAGUES OF VOTANN model from your army makes an attack with a weapon that targets the closest eligible target OR a target within Engagement Range of that model's unit:",
+        bullets: [
+          "Re-roll a Wound roll of 1.",
+          "If the unit is a KÂHL, EINHYR HEARTHGUARD or ÛTHAR THE DESTINED unit, also improve the Armour Penetration characteristic of that attack by 1.",
+        ],
+      },
+    };
+
+    const PHASES = [
+      { id: "command", label: "Command", num: "I", icon: Crown },
+      { id: "movement", label: "Movement", num: "II", icon: Footprints },
+      { id: "shooting", label: "Shooting", num: "III", icon: Crosshair },
+      { id: "charge", label: "Charge", num: "IV", icon: Hammer },
+      { id: "fight", label: "Fight", num: "V", icon: Swords },
+    ];
+
+    const typeColor = (t) => {
+      switch (t) {
+        case "Battle Tactic": return "text-orange-300 border-orange-800/60";
+        case "Strategic Ploy": return "text-cyan-300 border-cyan-800/60";
+        case "Epic Deed": return "text-amber-200 border-amber-700/60";
+        case "Wargear": return "text-stone-300 border-stone-600/60";
+        default: return "text-stone-300 border-stone-700";
+      }
+    };
+
+    // ============================================================
+    // COMPONENTS
+    // ============================================================
+    function ArmyRules() {
+      const [open, setOpen] = useState(true);
+      return (
+        <div className="mb-5 border border-stone-800 bg-gradient-to-b from-stone-950 to-black">
+          <button onClick={() => setOpen(!open)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-stone-900/40 transition-colors">
+            <div className="flex items-center gap-3">
+              <Hexagon size={18} className="text-orange-500" strokeWidth={2.5} />
+              <div className="text-left">
+                <div className="text-sm tracking-[0.25em] uppercase text-amber-50 font-bold" style={{ fontFamily: "Russo One, sans-serif" }}>
+                  Army Rules
+                </div>
+                <div className="text-[10px] tracking-widest uppercase text-stone-500">Army · Detachment · Enhancements</div>
+              </div>
+            </div>
+            <div className="text-stone-500">{open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</div>
+          </button>
+
+          {open && (
+            <div className="px-4 pb-4 pt-1 border-t border-stone-900/80 space-y-6">
+              <div>
+                <div className="mb-2">
+                  <div className="text-base text-amber-50 tracking-wide uppercase" style={{ fontFamily: "Russo One, sans-serif" }}>
+                    {ARMY_RULES.prioritised.title}
+                  </div>
+                  <div className="text-[11px] italic text-stone-400 leading-relaxed mt-0.5">
+                    {ARMY_RULES.prioritised.subtitle}
+                  </div>
+                </div>
+                <div className="text-[13px] text-stone-300 leading-relaxed mb-3">{ARMY_RULES.prioritised.intro}</div>
+
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {ARMY_RULES.prioritised.modes.map((m, i) => (
+                    <div key={m.name} className={`border-l-2 ${i === 0 ? "border-orange-700/70" : "border-cyan-700/70"} pl-3 py-1.5`}>
+                      <div className={`text-[13px] font-semibold tracking-wide uppercase ${i === 0 ? "text-orange-200" : "text-cyan-200"}`} style={{ fontFamily: "Russo One, sans-serif" }}>
+                        {m.name}
+                      </div>
+                      <div className="text-[10px] tracking-widest uppercase text-stone-500 mt-0.5 mb-1">{m.cond}</div>
+                      <ul className="text-[13px] text-stone-200 space-y-1 list-none">
+                        {m.bullets.map((b, j) => (
+                          <li key={j} className="flex gap-2"><span className="text-stone-600">▸</span><span>{b}</span></li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-3 border border-stone-800/80 bg-black/40 p-3">
+                  <div className="text-[11px] tracking-[0.25em] uppercase text-amber-600/80 font-semibold mb-1.5">
+                    {ARMY_RULES.prioritised.yp.title}
+                  </div>
+                  <ul className="text-[13px] text-stone-300 space-y-1 list-none">
+                    {ARMY_RULES.prioritised.yp.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2"><span className="text-stone-600">▸</span><span>{b}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2">
+                  <div className="text-base text-amber-50 tracking-wide uppercase" style={{ fontFamily: "Russo One, sans-serif" }}>
+                    {ARMY_RULES.detachment.title}
+                  </div>
+                  <div className="text-[11px] italic text-stone-400 leading-relaxed mt-0.5">
+                    {ARMY_RULES.detachment.subtitle}
+                  </div>
+                </div>
+                <div className="border-l-2 border-orange-700/70 pl-3 py-1">
+                  <div className="text-[13px] text-stone-200 leading-relaxed">{ARMY_RULES.detachment.body}</div>
+                  <ul className="text-[13px] text-stone-200 mt-1.5 space-y-1 list-none">
+                    {ARMY_RULES.detachment.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2"><span className="text-orange-500">▸</span><span>{b}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function Section({ label, body, accent }) {
+      return (
+        <div>
+          <div className={`text-[10px] uppercase tracking-[0.25em] font-semibold mb-1 ${accent ? "text-cyan-400" : "text-amber-600/80"}`}>
+            {label}
+          </div>
+          <div className="text-stone-200 text-[15px] leading-relaxed">{body}</div>
+        </div>
+      );
+    }
+
+    function StratagemCard({ s, expanded, onToggle }) {
+      const sourceColor = s.source === "Hearthband"
+        ? "bg-orange-950/50 text-orange-200 border-orange-800"
+        : "bg-stone-800/70 text-stone-300 border-stone-700";
+
+      return (
+        <div className="border border-stone-800 bg-gradient-to-b from-stone-950 to-black hover:border-orange-900/60 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            <div className="flex-shrink-0 relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-700 to-orange-950 border-2 border-orange-900 flex items-center justify-center shadow-lg shadow-orange-950/50"
+                style={{ clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" }}>
+                <span className="font-bold text-xl text-amber-100 leading-none" style={{ fontFamily: "Russo One, sans-serif" }}>{s.cp}</span>
+              </div>
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] tracking-widest text-amber-200/80 font-semibold">CP</div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base text-amber-50 leading-tight tracking-wide uppercase" style={{ fontFamily: "Russo One, sans-serif" }}>
+                {s.name}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${typeColor(s.type)} font-semibold`}>
+                  {s.type}
+                </span>
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${sourceColor} font-semibold`}>
+                  {s.source}
+                </span>
+                {s.ypSpend && (
+                  <span className="text-[10px] uppercase tracking-widest px-1.5 py-0.5 border border-cyan-700/60 bg-cyan-950/40 text-cyan-200 font-semibold">
+                    +YP option
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 mt-1 text-stone-500">
+              {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 space-y-3 border-t border-stone-900/80">
+              <Section label="When" body={s.when} />
+              <Section label="Target" body={s.target} />
+              <Section label="Effect" body={s.effect} />
+              {s.restrictions && <Section label="Restrictions" body={s.restrictions} accent />}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function TurnButton({ active, onClick, label, sub, Icon }) {
+      return (
+        <button onClick={onClick}
+          className={`group relative py-4 px-3 border-2 transition-all ${
+            active
+              ? "bg-gradient-to-b from-orange-950/70 to-black border-orange-700 shadow-lg shadow-orange-950/50"
+              : "bg-stone-950 border-stone-800 hover:border-stone-600"
+          }`}>
+          <div className="flex items-center justify-center gap-2.5">
+            <Icon size={22} className={active ? "text-amber-200" : "text-stone-600 group-hover:text-stone-400"} strokeWidth={active ? 2.5 : 1.5} />
+            <div className="text-left">
+              <div className={`text-base tracking-[0.18em] font-bold uppercase ${active ? "text-amber-50" : "text-stone-400"}`} style={{ fontFamily: "Russo One, sans-serif" }}>
+                {label}
+              </div>
+              <div className={`text-[9px] tracking-widest uppercase ${active ? "text-orange-400" : "text-stone-600"}`}>
+                {sub}
+              </div>
+            </div>
+          </div>
+        </button>
+      );
+    }
+
+    // ============================================================
+    // MAIN
+    // ============================================================
+    function App() {
+      const [turn, setTurn] = useState("my");
+      const [phase, setPhase] = useState("command");
+      const [expanded, setExpanded] = useState({});
+
+      const filtered = useMemo(() => {
+        const key = `${turn}:${phase}`;
+        const anyKey = `${turn}:any`;
+        return STRATAGEMS.filter((s) => s.slots.includes(key) || s.slots.includes(anyKey))
+          .sort((a, b) => {
+            if (a.source !== b.source) return a.source === "Hearthband" ? -1 : 1;
+            return a.cp - b.cp;
+          });
+      }, [turn, phase]);
+
+      const toggle = (name) => setExpanded((e) => ({ ...e, [name]: !e[name] }));
+
+      return (
+        <div className="min-h-screen bg-black text-stone-100 relative">
+          <div className="fixed inset-0 pointer-events-none hex-bg opacity-50" />
+          <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-orange-950/10 via-transparent to-cyan-950/5" />
+
+          <div className="relative max-w-3xl mx-auto px-4 py-6">
+            <header className="text-center mb-6 pb-6 border-b-2 border-orange-900/40 relative">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <Hexagon size={16} className="text-orange-600" strokeWidth={2.5} />
+                <span className="text-[10px] tracking-[0.4em] text-orange-500/80 font-semibold uppercase">
+                  By the Eye of the Ancestors
+                </span>
+                <Hexagon size={16} className="text-orange-600" strokeWidth={2.5} />
+              </div>
+              <h1 className="text-2xl sm:text-4xl text-amber-50 tracking-[0.15em] leading-tight" style={{ fontFamily: "Russo One, sans-serif" }}>
+                HEARTHBAND
+              </h1>
+              <div className="text-xs mt-1 text-stone-400 tracking-[0.3em] uppercase">
+                Leagues of Votann · Stratagem Codex
+              </div>
+              <div className="text-[10px] mt-2 text-cyan-700/80 tracking-[0.25em] uppercase">
+                Methodical Annihilation
+              </div>
+            </header>
+
+            <ArmyRules />
+
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Whose Turn —</div>
+              <div className="grid grid-cols-2 gap-2">
+                <TurnButton active={turn === "my"} onClick={() => setTurn("my")} label="My Turn" sub="The Kindred Advances" Icon={Hammer} />
+                <TurnButton active={turn === "opponent"} onClick={() => setTurn("opponent")} label="Opponent" sub="Reactive Stratagems" Icon={Cog} />
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Battle Phase —</div>
+              <div className="grid grid-cols-5 gap-1">
+                {PHASES.map((p) => {
+                  const active = phase === p.id;
+                  const PhaseIcon = p.icon;
+                  return (
+                    <button key={p.id} onClick={() => setPhase(p.id)}
+                      className={`relative py-2.5 px-1 border transition-all ${
+                        active ? "bg-orange-950/50 border-orange-700 text-amber-100" : "bg-stone-950 border-stone-800 text-stone-500 hover:border-stone-600 hover:text-stone-300"
+                      }`}>
+                      <div className={`text-[9px] tracking-widest font-bold mb-0.5 ${active ? "text-orange-400" : "text-stone-600"}`} style={{ fontFamily: "Russo One, sans-serif" }}>
+                        {p.num}
+                      </div>
+                      <PhaseIcon size={16} className="mx-auto mb-0.5" strokeWidth={active ? 2.5 : 1.5} />
+                      <div className="text-[10px] leading-tight tracking-wider uppercase font-semibold">{p.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="text-center mb-4 text-[11px] tracking-[0.25em] uppercase text-stone-500">
+              {filtered.length} legal stratagem{filtered.length !== 1 ? "s" : ""}
+              <span className="text-stone-700"> · </span>
+              <span className="text-stone-400">{turn === "my" ? "Your" : "Opponent's"} {PHASES.find((p) => p.id === phase)?.label} Phase</span>
+            </div>
+
+            <div className="space-y-2">
+              {filtered.length === 0 ? (
+                <div className="border border-stone-800 bg-stone-950 p-8 text-center">
+                  <Hexagon size={32} className="mx-auto mb-3 text-stone-700" />
+                  <div className="text-stone-500 italic">
+                    No stratagems available for this phase.
+                    <br />
+                    Conserve your CP and YP, Kâhl.
+                  </div>
+                </div>
+              ) : (
+                filtered.map((s) => (
+                  <StratagemCard key={s.name} s={s} expanded={!!expanded[s.name]} onToggle={() => toggle(s.name)} />
+                ))
+              )}
+            </div>
+
+            <div className="mt-8 pt-5 border-t border-stone-900 text-[11px] text-stone-500 leading-relaxed italic text-center">
+              Each Stratagem can be used only once per phase (unless otherwise stated).
+              <br />
+              <span className="not-italic tracking-[0.2em] text-cyan-700/80">+YP OPTION</span>
+              <span className="ml-1">badge indicates an optional Yield Point spend for an extra effect.</span>
+              <br />
+              <span className="text-stone-600 mt-2 inline-block">Luck has. Need keeps. Toil earns.</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liberator Assault Group — Blood Angels Stratagems</title>
+  <meta name="description" content="Blood Angels Liberator Assault Group detachment stratagem reference for Warhammer 40k 10th edition. The Red Thirst." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body { background: #0a0303; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
+    #root:empty::before {
+      content: 'Reciting the Litany of the Angel...';
+      display: block;
+      color: #57534e;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      letter-spacing: 0.1em;
+      text-align: center;
+      padding: 4rem 1rem;
+      font-size: 14px;
+    }
+    /* Subtle radial bloom for the page background */
+    .ba-bg {
+      background:
+        radial-gradient(ellipse at top, rgba(139, 10, 26, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(212, 175, 55, 0.04) 0%, transparent 50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
+
+    // ============================================================
+    // ICONS
+    // ============================================================
+    const Icon = ({ d, size = 24, strokeWidth = 2, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+        className={className}>{d}</svg>
+    );
+    const Crown = (p) => <Icon {...p} d={<polygon points="2 18 5 8 9 14 12 6 15 14 19 8 22 18 2 18"/>} />;
+    const Footprints = (p) => <Icon {...p} d={<>
+      <path d="M4 16v-2a3 3 0 0 1 3-3h.01a3 3 0 0 1 3 3v2"/>
+      <path d="M5 20h4"/>
+      <path d="M14 17v-2a3 3 0 0 1 3-3h.01a3 3 0 0 1 3 3v2"/>
+      <path d="M15 21h4"/>
+    </>} />;
+    const Crosshair = (p) => <Icon {...p} d={<>
+      <circle cx="12" cy="12" r="9"/>
+      <line x1="12" y1="2" x2="12" y2="6"/>
+      <line x1="12" y1="18" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="6" y2="12"/>
+      <line x1="18" y1="12" x2="22" y2="12"/>
+      <circle cx="12" cy="12" r="2"/>
+    </>} />;
+    const Hammer = (p) => <Icon {...p} d={<>
+      <path d="M15 12l-8.5 8.5a2.121 2.121 0 1 1-3-3L12 9"/>
+      <path d="M17.64 15L22 10.64"/>
+      <path d="M20.91 11.7l-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>
+    </>} />;
+    const Swords = (p) => <Icon {...p} d={<>
+      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+      <line x1="13" y1="19" x2="19" y2="13"/>
+      <line x1="16" y1="16" x2="20" y2="20"/>
+      <line x1="19" y1="21" x2="21" y2="19"/>
+      <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/>
+      <line x1="5" y1="14" x2="9" y2="18"/>
+    </>} />;
+    const ChevronDown = (p) => <Icon {...p} d={<polyline points="6 9 12 15 18 9"/>} />;
+    const ChevronUp = (p) => <Icon {...p} d={<polyline points="18 15 12 9 6 15"/>} />;
+    // Blood drop / teardrop
+    const Droplet = (p) => <Icon {...p} d={<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>} />;
+    // Wings — symmetric pair
+    const Wings = (p) => <Icon {...p} d={<>
+      <path d="M12 12c-2-3-5-4-9-4 0 3 1 7 4 9 2 1 4 1 5 0"/>
+      <path d="M12 12c2-3 5-4 9-4 0 3-1 7-4 9-2 1-4 1-5 0"/>
+      <path d="M12 6v12"/>
+    </>} />;
+    // Goblet / chalice for opponent turn
+    const Chalice = (p) => <Icon {...p} d={<>
+      <path d="M8 2h8l-1 7a4 4 0 0 1-3 4 4 4 0 0 1-3-4z"/>
+      <path d="M12 13v6"/>
+      <path d="M8 21h8"/>
+    </>} />;
+
+    // ============================================================
+    // STRATAGEM DATA  (Wahapedia canonical wording)
+    // slots: ["turn:phase"] – "my:any" / "opponent:any" cover all phases
+    // ============================================================
+    const STRATAGEMS = [
+      // ---------- LIBERATOR ASSAULT GROUP ----------
+      {
+        name: "Angelic Grace",
+        source: "Liberator",
+        type: "Strategic Ploy",
+        cp: 1,
+        redThirst: false,
+        slots: ["my:any", "opponent:any"],
+        when: "Any phase, just after an ADEPTUS ASTARTES unit from your army has a mortal wound allocated to it.",
+        target: "That ADEPTUS ASTARTES unit.",
+        effect: "Until the end of the phase, models in your unit have the Feel No Pain 5+ ability against mortal wounds.",
+      },
+      {
+        name: "Armour of Contempt",
+        source: "Liberator",
+        type: "Battle Tactic",
+        cp: 1,
+        redThirst: false,
+        slots: ["opponent:shooting", "my:fight", "opponent:fight"],
+        when: "Your opponent's Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+        target: "One ADEPTUS ASTARTES unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1.",
+      },
+      {
+        name: "Savage Echoes",
+        source: "Liberator",
+        type: "Battle Tactic",
+        cp: 1,
+        redThirst: true,
+        slots: ["opponent:charge"],
+        when: "Your opponent's Charge phase.",
+        target: "One ADEPTUS ASTARTES unit from your army that was just charged by an enemy unit.",
+        effect: "Select either the Strength or Attacks characteristic of melee weapons equipped by models in your unit. Until the end of the turn, add 1 to the selected characteristic. You can instead choose for your unit to give in to the Red Thirst; if it does, it becomes Battle-shocked (but the effects of this Stratagem still apply to it) and until the end of the turn, add 1 to the Strength AND Attacks characteristics of melee weapons equipped by models in your unit.",
+      },
+      {
+        name: "Red Rampage",
+        source: "Liberator",
+        type: "Battle Tactic",
+        cp: 1,
+        redThirst: true,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase.",
+        target: "One ADEPTUS ASTARTES unit from your army that has not been selected to fight this phase.",
+        effect: "Select either the [LANCE] or [LETHAL HITS] abilities. Until the end of the phase, melee weapons equipped by models in your unit have the selected ability. You can instead choose for your unit to give in to the Red Thirst; if it does, then it becomes Battle-shocked (but the effects of this Stratagem still apply to it) and until the end of the phase, melee weapons equipped by models in your unit have BOTH the [LANCE] and [LETHAL HITS] abilities.",
+      },
+      {
+        name: "Aggressive Onslaught",
+        source: "Liberator",
+        type: "Strategic Ploy",
+        cp: 1,
+        redThirst: true,
+        slots: ["my:movement"],
+        when: "Your Movement phase, just after an ADEPTUS ASTARTES unit from your army has Advanced.",
+        target: "That ADEPTUS ASTARTES unit.",
+        effect: "Until the end of the turn, your unit is eligible to either shoot OR declare a charge, even though it Advanced. You can instead choose for your unit to give in to the Red Thirst; if it does, it becomes Battle-shocked (but the effects of this Stratagem still apply to it) and until the end of the turn, your unit is eligible to BOTH shoot AND declare a charge, even though it Advanced.",
+      },
+      {
+        name: "Relentless Assault",
+        source: "Liberator",
+        type: "Strategic Ploy",
+        cp: 1,
+        redThirst: true,
+        slots: ["my:movement"],
+        when: "Your Movement phase, just after an ADEPTUS ASTARTES unit from your army Falls Back.",
+        target: "That ADEPTUS ASTARTES unit.",
+        effect: "Until the end of the turn, your unit is eligible to either shoot OR declare a charge even though it Fell Back. You can instead choose for your unit to give in to the Red Thirst; if it does, it becomes Battle-shocked (but the effects of this Stratagem still apply to it) and until the end of the turn, your unit is eligible to BOTH shoot AND declare a charge, even though it Fell Back.",
+      },
+
+      // ---------- CORE STRATAGEMS ----------
+      {
+        name: "Command Re-roll",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        slots: ["my:any", "opponent:any"],
+        when: "Any phase, just after you have made a Hit roll, a Wound roll, a Damage roll, a saving throw, an Advance roll, a Charge roll, a Desperate Escape test, a Hazardous test, or just after you have rolled the dice to determine the number of attacks made with a weapon, for an attack, model or unit from your army.",
+        target: "That unit or model from your army.",
+        effect: "You re-roll that roll, test or saving throw.",
+      },
+      {
+        name: "Counter-Offensive",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase, just after an enemy unit has fought.",
+        target: "One unit from your army that is within Engagement Range of one or more enemy units and that has not been selected to fight this phase.",
+        effect: "Your unit fights next.",
+      },
+      {
+        name: "Epic Challenge",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        slots: ["my:fight", "opponent:fight"],
+        when: "Fight phase, when a unit from your army with one or more Attached units is selected to fight.",
+        target: "One CHARACTER model in your unit.",
+        effect: "Until the end of the phase, all melee attacks made by that model have the [PRECISION] ability.",
+      },
+      {
+        name: "Insane Bravery",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        slots: ["my:command"],
+        when: "Battle-shock step of your Command phase, just before you take a Battle-shock test for a unit from your army.",
+        target: "That unit from your army.",
+        effect: "Your unit automatically passes that Battle-shock test.",
+        restrictions: "You cannot use this Stratagem more than once per battle.",
+      },
+      {
+        name: "Grenade",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        slots: ["my:shooting"],
+        when: "Your Shooting phase.",
+        target: "One GRENADES unit from your army (excluding units that Advanced, Fell Back or have shot this turn) that is not within Engagement Range of one or more enemy units.",
+        effect: "Select one GRENADES model in your unit and one enemy unit that is not within Engagement Range of any units from your army and is within 8\" of and visible to your GRENADES model. Roll six D6: for each 4+, that enemy unit suffers 1 mortal wound.",
+      },
+      {
+        name: "Tank Shock",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["my:charge"],
+        when: "Your Charge phase, just after a VEHICLE unit from your army ends a Charge move within Engagement Range of one or more enemy units.",
+        target: "That VEHICLE unit and one enemy unit it is within Engagement Range of.",
+        effect: "Select one melee weapon equipped by a model in your VEHICLE unit and roll a number of D6 equal to that weapon's Strength characteristic. If that Strength characteristic is greater than that enemy unit's Toughness characteristic, roll two additional D6. For each 5+, that enemy unit suffers 1 mortal wound (to a maximum of 6 mortal wounds).",
+      },
+      {
+        name: "Rapid Ingress",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["opponent:movement"],
+        when: "End of your opponent's Movement phase.",
+        target: "One unit from your army that is in Reserves.",
+        effect: "Your unit can arrive on the battlefield as if it were the Reinforcements step of your Movement phase.",
+        restrictions: "You cannot use this Stratagem to enable a unit to arrive on the battlefield during a battle round it would not normally be able to do so in.",
+      },
+      {
+        name: "Fire Overwatch",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        slots: ["opponent:movement", "opponent:charge"],
+        when: "Your opponent's Movement or Charge phase, just after an enemy unit is set up or when an enemy unit starts or ends a Normal, Advance, Fall Back or Charge move.",
+        target: "One unit from your army that is within 24\" of that enemy unit and that would be eligible to shoot if it were your Shooting phase.",
+        effect: "Your unit can shoot that enemy unit as if it were your Shooting phase. Until the end of the phase, each time a model in your unit makes a ranged attack, an unmodified Hit roll of 6 is required to score a hit, irrespective of the attacking weapon's Ballistic Skill or any modifiers.",
+        restrictions: "You can only use this Stratagem once per turn.",
+      },
+      {
+        name: "Smoke",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        slots: ["opponent:shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One SMOKE unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the end of the phase, all models in your unit have the Benefit of Cover and the Stealth ability.",
+      },
+      {
+        name: "Go to Ground",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        slots: ["opponent:shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One INFANTRY unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+        effect: "Until the end of the phase, all models in your unit have a 6+ invulnerable save and have the Benefit of Cover.",
+      },
+      {
+        name: "Heroic Intervention",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        slots: ["opponent:charge"],
+        when: "Your opponent's Charge phase, just after an enemy unit ends a Charge move.",
+        target: "One unit from your army that is within 6\" of that enemy unit and that would be eligible to declare a charge against that enemy unit if it were your Charge phase.",
+        effect: "Your unit now declares a charge that targets only that enemy unit, and you resolve that charge as if it were your Charge phase.",
+      },
+    ];
+
+    // ============================================================
+    // ARMY RULES (Wahapedia canonical)
+    // ============================================================
+    const ARMY_RULES = {
+      oath: {
+        title: "Oath of Moment",
+        subtitle: "Army Rule · ADEPTUS ASTARTES",
+        body: "At the start of your Command phase, select one unit from your opponent's army. Until the start of your next Command phase, that enemy unit is your Oath of Moment target.",
+        bullets: [
+          "Each time a model with this ability makes an attack that targets your Oath of Moment target, you can re-roll the Hit roll.",
+        ],
+        note: "The +1 to Wound roll bonus does NOT apply, because a Blood Angels detachment includes BLOOD ANGELS units. That bonus is restricted to Codex: Space Marines detachments without Chapter-specific keywords.",
+      },
+      sonsOfSanguinius: {
+        title: "The Sons of Sanguinius",
+        subtitle: "Chapter Rule · BLOOD ANGELS",
+        body: "If an ADEPTUS ASTARTES unit has a second Faction keyword on its datasheet, that Faction keyword is the name of that unit's Chapter. You cannot include units from more than one Chapter in your army.",
+      },
+      detachment: {
+        title: "Red Thirst",
+        subtitle: "Detachment Rule · Liberator Assault Group",
+        body: "Each time an ADEPTUS ASTARTES unit from your army is selected to fight, if that unit made a Charge move this turn, until the end of the phase:",
+        bullets: [
+          "Add 1 to the Attacks characteristic of melee weapons equipped by models in that unit.",
+          "Add 2 to the Strength characteristic of melee weapons equipped by models in that unit.",
+        ],
+        restrictions: "Your army can include BLOOD ANGELS units, but it cannot include any ADEPTUS ASTARTES units drawn from any other Chapter.",
+      },
+    };
+
+    const PHASES = [
+      { id: "command", label: "Command", num: "I", icon: Crown },
+      { id: "movement", label: "Movement", num: "II", icon: Footprints },
+      { id: "shooting", label: "Shooting", num: "III", icon: Crosshair },
+      { id: "charge", label: "Charge", num: "IV", icon: Hammer },
+      { id: "fight", label: "Fight", num: "V", icon: Swords },
+    ];
+
+    const typeColor = (t) => {
+      switch (t) {
+        case "Battle Tactic": return "text-red-300 border-red-900/70";
+        case "Strategic Ploy": return "text-amber-200 border-amber-800/70";
+        case "Epic Deed": return "text-yellow-200 border-yellow-700/70";
+        case "Wargear": return "text-stone-300 border-stone-600/70";
+        default: return "text-stone-300 border-stone-700";
+      }
+    };
+
+    // ============================================================
+    // COMPONENTS
+    // ============================================================
+    function ArmyRules() {
+      const [open, setOpen] = useState(true);
+      return (
+        <div className="mb-5 border border-red-950/60 bg-gradient-to-b from-stone-950 to-black">
+          <button onClick={() => setOpen(!open)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-red-950/20 transition-colors">
+            <div className="flex items-center gap-3">
+              <Wings size={20} className="text-amber-400/80" strokeWidth={1.8} />
+              <div className="text-left">
+                <div className="font-display text-lg italic tracking-wide text-amber-50 leading-none">
+                  Army Rules
+                </div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-red-300/60 mt-1">Army · Chapter · Detachment</div>
+              </div>
+            </div>
+            <div className="text-red-300/60">{open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</div>
+          </button>
+
+          {open && (
+            <div className="px-4 pb-4 pt-1 border-t border-red-950/40 space-y-6">
+
+              {/* Oath of Moment */}
+              <div>
+                <div className="mb-2">
+                  <div className="font-display text-xl text-amber-100 tracking-wide italic">
+                    {ARMY_RULES.oath.title}
+                  </div>
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-red-400/70 mt-0.5">
+                    {ARMY_RULES.oath.subtitle}
+                  </div>
+                </div>
+                <div className="border-l-2 border-amber-700/60 pl-3 py-1">
+                  <div className="text-[13px] text-stone-200 leading-relaxed">{ARMY_RULES.oath.body}</div>
+                  <ul className="text-[13px] text-stone-200 mt-1.5 space-y-1 list-none">
+                    {ARMY_RULES.oath.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2"><span className="text-amber-500/80">▸</span><span>{b}</span></li>
+                    ))}
+                  </ul>
+                  <div className="mt-2 text-[12px] italic text-stone-400 leading-relaxed">
+                    <span className="text-amber-500/70 not-italic font-semibold tracking-wider text-[10px] uppercase">Note: </span>
+                    {ARMY_RULES.oath.note}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sons of Sanguinius */}
+              <div>
+                <div className="mb-2">
+                  <div className="font-display text-xl text-amber-100 tracking-wide italic">
+                    {ARMY_RULES.sonsOfSanguinius.title}
+                  </div>
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-red-400/70 mt-0.5">
+                    {ARMY_RULES.sonsOfSanguinius.subtitle}
+                  </div>
+                </div>
+                <div className="border-l-2 border-amber-700/60 pl-3 py-1">
+                  <div className="text-[13px] text-stone-200 leading-relaxed">{ARMY_RULES.sonsOfSanguinius.body}</div>
+                </div>
+              </div>
+
+              {/* Red Thirst */}
+              <div>
+                <div className="mb-2">
+                  <div className="font-display text-xl text-red-200 tracking-wide italic">
+                    {ARMY_RULES.detachment.title}
+                  </div>
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-red-400/70 mt-0.5">
+                    {ARMY_RULES.detachment.subtitle}
+                  </div>
+                </div>
+                <div className="border-l-2 border-red-700/70 pl-3 py-1">
+                  <div className="text-[13px] text-stone-200 leading-relaxed">{ARMY_RULES.detachment.body}</div>
+                  <ul className="text-[13px] text-stone-200 mt-1.5 space-y-1 list-none">
+                    {ARMY_RULES.detachment.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2"><span className="text-red-500">▸</span><span>{b}</span></li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-2 border border-red-950/60 bg-red-950/20 p-2.5">
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-red-300/80 font-semibold mb-1">
+                    Restrictions
+                  </div>
+                  <div className="text-[12px] text-stone-300 leading-relaxed">
+                    {ARMY_RULES.detachment.restrictions}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function Section({ label, body, accent }) {
+      return (
+        <div>
+          <div className={`text-[10px] uppercase tracking-[0.25em] font-semibold mb-1 ${accent ? "text-red-400" : "text-amber-500/80"}`}>
+            {label}
+          </div>
+          <div className="text-stone-200 text-[15px] leading-relaxed">{body}</div>
+        </div>
+      );
+    }
+
+    function StratagemCard({ s, expanded, onToggle }) {
+      const sourceColor = s.source === "Liberator"
+        ? "bg-red-950/60 text-red-100 border-red-800"
+        : "bg-stone-800/70 text-stone-300 border-stone-700";
+
+      return (
+        <div className="border border-red-950/50 bg-gradient-to-b from-stone-950 to-black hover:border-red-800/70 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            {/* CP Circular badge — gold rim, crimson interior, like a noble seal */}
+            <div className="flex-shrink-0 relative">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-700 via-red-900 to-red-950 border-2 border-amber-600/80 flex items-center justify-center shadow-lg shadow-red-950/50">
+                <span className="font-display italic font-bold text-2xl text-amber-100 leading-none">{s.cp}</span>
+              </div>
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] tracking-widest text-amber-400/90 font-semibold">CP</div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display text-xl text-amber-50 leading-tight italic tracking-wide">
+                {s.name}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${typeColor(s.type)} font-semibold`}>
+                  {s.type}
+                </span>
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${sourceColor} font-semibold`}>
+                  {s.source === "Liberator" ? "Liberator AG" : "Core"}
+                </span>
+                {s.redThirst && (
+                  <span className="text-[10px] uppercase tracking-widest px-1.5 py-0.5 border border-red-700 bg-red-950/70 text-red-200 font-semibold inline-flex items-center gap-1">
+                    <Droplet size={9} strokeWidth={2.5} className="text-red-400"/>
+                    Red Thirst option
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 mt-1 text-red-300/60">
+              {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 space-y-3 border-t border-red-950/40">
+              <Section label="When" body={s.when} />
+              <Section label="Target" body={s.target} />
+              <Section label="Effect" body={s.effect} />
+              {s.restrictions && <Section label="Restrictions" body={s.restrictions} accent />}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function TurnButton({ active, onClick, label, sub, Icon }) {
+      return (
+        <button onClick={onClick}
+          className={`group relative py-4 px-3 border-2 transition-all ${
+            active
+              ? "bg-gradient-to-b from-red-950/80 to-black border-red-700 shadow-lg shadow-red-950/50"
+              : "bg-stone-950 border-stone-800 hover:border-stone-600"
+          }`}>
+          <div className="flex items-center justify-center gap-2.5">
+            <Icon size={22} className={active ? "text-amber-300" : "text-stone-600 group-hover:text-stone-400"} strokeWidth={active ? 2 : 1.5} />
+            <div className="text-left">
+              <div className={`font-display text-lg italic tracking-wide leading-none ${active ? "text-amber-50" : "text-stone-400"}`}>
+                {label}
+              </div>
+              <div className={`text-[9px] tracking-[0.2em] uppercase mt-1 ${active ? "text-red-300/80" : "text-stone-600"}`}>
+                {sub}
+              </div>
+            </div>
+          </div>
+        </button>
+      );
+    }
+
+    // ============================================================
+    // MAIN
+    // ============================================================
+    function App() {
+      const [turn, setTurn] = useState("my");
+      const [phase, setPhase] = useState("command");
+      const [expanded, setExpanded] = useState({});
+
+      const filtered = useMemo(() => {
+        const key = `${turn}:${phase}`;
+        const anyKey = `${turn}:any`;
+        return STRATAGEMS.filter((s) => s.slots.includes(key) || s.slots.includes(anyKey))
+          .sort((a, b) => {
+            if (a.source !== b.source) return a.source === "Liberator" ? -1 : 1;
+            return a.cp - b.cp;
+          });
+      }, [turn, phase]);
+
+      const toggle = (name) => setExpanded((e) => ({ ...e, [name]: !e[name] }));
+
+      return (
+        <div className="min-h-screen bg-black text-stone-100 relative">
+          <div className="fixed inset-0 pointer-events-none ba-bg" />
+
+          <div className="relative max-w-3xl mx-auto px-4 py-6">
+            {/* ============ HEADER ============ */}
+            <header className="text-center mb-6 pb-6 border-b border-red-900/40 relative">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <Wings size={18} className="text-amber-400/70" strokeWidth={1.5} />
+                <span className="text-[10px] tracking-[0.4em] text-amber-400/70 font-semibold uppercase">
+                  Sons of Sanguinius
+                </span>
+                <Wings size={18} className="text-amber-400/70" strokeWidth={1.5} />
+              </div>
+              <h1 className="font-display italic text-3xl sm:text-5xl text-amber-50 tracking-wide leading-tight">
+                Liberator Assault Group
+              </h1>
+              <div className="text-xs mt-2 text-stone-400 tracking-[0.3em] uppercase">
+                Blood Angels · Stratagem Codex
+              </div>
+              <div className="mt-3 flex items-center justify-center gap-2 text-red-400/80">
+                <Droplet size={12} strokeWidth={2} />
+                <span className="font-display italic text-base tracking-wide">The Red Thirst</span>
+                <Droplet size={12} strokeWidth={2} />
+              </div>
+            </header>
+
+            {/* ============ ARMY RULES ============ */}
+            <ArmyRules />
+
+            {/* ============ TURN TOGGLE ============ */}
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Whose Turn —</div>
+              <div className="grid grid-cols-2 gap-2">
+                <TurnButton active={turn === "my"} onClick={() => setTurn("my")} label="My Turn" sub="The Angels Strike" Icon={Swords} />
+                <TurnButton active={turn === "opponent"} onClick={() => setTurn("opponent")} label="Opponent" sub="Reactive Stratagems" Icon={Chalice} />
+              </div>
+            </div>
+
+            {/* ============ PHASE SELECTOR ============ */}
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Battle Phase —</div>
+              <div className="grid grid-cols-5 gap-1">
+                {PHASES.map((p) => {
+                  const active = phase === p.id;
+                  const PhaseIcon = p.icon;
+                  return (
+                    <button key={p.id} onClick={() => setPhase(p.id)}
+                      className={`relative py-2.5 px-1 border transition-all ${
+                        active ? "bg-red-950/50 border-red-700 text-amber-100" : "bg-stone-950 border-stone-800 text-stone-500 hover:border-stone-600 hover:text-stone-300"
+                      }`}>
+                      <div className={`font-display italic text-sm font-semibold leading-none mb-1 ${active ? "text-amber-400" : "text-stone-600"}`}>
+                        {p.num}
+                      </div>
+                      <PhaseIcon size={16} className="mx-auto mb-0.5" strokeWidth={active ? 2.2 : 1.5} />
+                      <div className="text-[10px] leading-tight tracking-wider uppercase font-semibold">{p.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ============ FILTER SUMMARY ============ */}
+            <div className="text-center mb-4 text-[11px] tracking-[0.25em] uppercase text-stone-500">
+              {filtered.length} legal stratagem{filtered.length !== 1 ? "s" : ""}
+              <span className="text-stone-700"> · </span>
+              <span className="text-stone-400">{turn === "my" ? "Your" : "Opponent's"} {PHASES.find((p) => p.id === phase)?.label} Phase</span>
+            </div>
+
+            {/* ============ STRATAGEM LIST ============ */}
+            <div className="space-y-2">
+              {filtered.length === 0 ? (
+                <div className="border border-red-950/40 bg-stone-950 p-8 text-center">
+                  <Wings size={28} className="mx-auto mb-3 text-stone-700" strokeWidth={1.5} />
+                  <div className="font-display italic text-stone-500 text-lg">
+                    No stratagems available for this phase.
+                  </div>
+                  <div className="text-stone-600 text-sm mt-1">Conserve your CP, son of Sanguinius.</div>
+                </div>
+              ) : (
+                filtered.map((s) => (
+                  <StratagemCard key={s.name} s={s} expanded={!!expanded[s.name]} onToggle={() => toggle(s.name)} />
+                ))
+              )}
+            </div>
+
+            {/* ============ FOOTER ============ */}
+            <div className="mt-8 pt-5 border-t border-red-950/40 text-[11px] text-stone-500 leading-relaxed text-center">
+              <div className="italic">Each Stratagem can be used only once per phase (unless otherwise stated).</div>
+              <div className="mt-2 flex items-center justify-center gap-1.5 flex-wrap">
+                <span className="not-italic tracking-[0.2em] uppercase text-red-300/80 text-[10px] font-semibold inline-flex items-center gap-1">
+                  <Droplet size={9} strokeWidth={2.5}/>Red Thirst option
+                </span>
+                <span className="italic">— give in to the rage: unit becomes Battle-shocked, gains the second effect.</span>
+              </div>
+              <div className="font-display italic text-stone-600 mt-3 text-sm">"For Sanguinius. For the Emperor."</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
