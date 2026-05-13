@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vindication Task Force — Black Templars Stratagems</title>
+  <meta name="description" content="Black Templars Vindication Task Force stratagem reference for Warhammer 40k 10th edition." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
+
+  <!-- Tailwind CSS (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React + ReactDOM + Babel (for in-browser JSX) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body { background: #000; }
+    body { font-family: 'EB Garamond', Georgia, serif; }
+    /* Hide while Babel compiles */
+    #root:empty::before {
+      content: 'Loading...';
+      display: block;
+      color: #57534e;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.3em;
+      text-align: center;
+      padding: 4rem 1rem;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
+
+    // ============================================================
+    // ICONS (inline SVG, replacing lucide-react)
+    // ============================================================
+    const Icon = ({ d, size = 24, strokeWidth = 2, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+        className={className}>
+        {d}
+      </svg>
+    );
+
+    const Sword = (p) => <Icon {...p} d={<>
+      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+      <line x1="13" y1="19" x2="19" y2="13"/>
+      <line x1="16" y1="16" x2="20" y2="20"/>
+      <line x1="19" y1="21" x2="21" y2="19"/>
+    </>} />;
+
+    const Shield = (p) => <Icon {...p} d={
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    } />;
+
+    const Crown = (p) => <Icon {...p} d={<>
+      <path d="M2 7l4 8 6-10 6 10 4-8v13H2z"/>
+    </>} />;
+
+    const Flame = (p) => <Icon {...p} d={
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+    } />;
+
+    const Skull = (p) => <Icon {...p} d={<>
+      <circle cx="9" cy="12" r="1"/>
+      <circle cx="15" cy="12" r="1"/>
+      <path d="M8 20v2h8v-2"/>
+      <path d="M12.5 17l-.5-1-.5 1h1z"/>
+      <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/>
+    </>} />;
+
+    const ChevronDown = (p) => <Icon {...p} d={<polyline points="6 9 12 15 18 9"/>} />;
+    const ChevronUp = (p) => <Icon {...p} d={<polyline points="18 15 12 9 6 15"/>} />;
+
+    const Cross = (p) => <Icon {...p} d={<>
+      <line x1="12" y1="2" x2="12" y2="22"/>
+      <line x1="4" y1="9" x2="20" y2="9"/>
+    </>} />;
+
+    // ============================================================
+    // STRATAGEM DATA
+    // ============================================================
+    const STRATAGEMS = [
+      // ---------- VINDICATION TASK FORCE ----------
+      {
+        name: "Refusal to Yield",
+        source: "Vindication Task Force",
+        type: "Epic Deed",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["any"],
+        when: "End of any phase.",
+        target: "One ANCIENT model from your army that was destroyed this phase.",
+        effect: "Set the model back up on the battlefield on full wounds as close as possible to where it was destroyed.",
+        restrictions: "Once per model per battle.",
+      },
+      {
+        name: "Litanies of Purgation",
+        source: "Vindication Task Force",
+        type: "Battle Tactic",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["fight"],
+        when: "Fight phase.",
+        target: "One BLACK TEMPLARS unit from your army that has been selected to fight.",
+        effect: "Until the end of the phase, melee attacks made by models in your unit have +1 AP against enemies within range of an objective marker.",
+      },
+      {
+        name: "Spoor of the Unholy",
+        source: "Vindication Task Force",
+        type: "Battle Tactic",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["shooting", "fight"],
+        when: "Your Shooting phase or the Fight phase.",
+        target: "One BLACK TEMPLARS unit from your army.",
+        effect: "Until the end of the phase, weapons equipped by models in your unit have [IGNORES COVER], and attacks made with them cannot be affected by any modifiers to Hit rolls or Ballistic Skill / Weapon Skill.",
+      },
+      {
+        name: "Reclaim Our Honour!",
+        source: "Vindication Task Force",
+        type: "Strategic Ploy",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["any"],
+        when: "Any phase, just after an ANCIENT model from your army is destroyed.",
+        target: "The enemy unit that destroyed your ANCIENT model.",
+        effect: "For the rest of the battle, ADEPTUS ASTARTES models from your army have +1 to Hit rolls against that target enemy unit.",
+        restrictions: "Cannot be used if Refusal to Yield was used on the same ANCIENT model.",
+      },
+      {
+        name: "Recitation of the Revered",
+        source: "Vindication Task Force",
+        type: "Battle Tactic",
+        cp: 1,
+        turns: ["opponent"],
+        phases: ["shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One ANCIENT unit from your army that was selected as a target.",
+        effect: "Until the end of the phase, all ranged attacks targeting your unit suffer -1 to the Hit roll.",
+      },
+      {
+        name: "Perfervid Intervention",
+        source: "Vindication Task Force",
+        type: "Strategic Ploy",
+        cp: 2,
+        turns: ["opponent"],
+        phases: ["charge"],
+        when: "End of your opponent's Charge phase.",
+        target: "One BLACK TEMPLARS unit from your army that is not within Engagement Range of any enemy units.",
+        effect: "Your unit can declare a charge against one or more enemy units that are within 6\" of it, then resolve that charge as if it were your Charge phase.",
+      },
+
+      // ---------- CORE STRATAGEMS ----------
+      {
+        name: "Command Re-roll",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["any"],
+        when: "Any phase, just after you make an Advance, Charge, Desperate Escape, Hazardous, Hit, Wound, Damage, saving throw, or number-of-attacks roll for a unit from your army.",
+        target: "That unit or model.",
+        effect: "Re-roll that roll, test, or saving throw.",
+      },
+      {
+        name: "Insane Bravery",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        turns: ["my"],
+        phases: ["command"],
+        when: "Battle-shock step of your Command phase, just before you take a Battle-shock test for a unit from your army.",
+        target: "That unit from your army.",
+        effect: "Your unit automatically passes the Battle-shock test.",
+        restrictions: "Cannot be used more than once per battle.",
+      },
+      {
+        name: "Grenade",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        turns: ["my"],
+        phases: ["shooting"],
+        when: "Your Shooting phase.",
+        target: "One GRENADES unit from your army (excluding any that Advanced, Fell Back, or have shot this turn) not within Engagement Range of enemy units.",
+        effect: "Select one GRENADES model in your unit and one enemy unit not within Engagement Range of any of your units and within 8\" of and visible to your model. Roll six D6: for each 4+, the enemy unit suffers 1 mortal wound.",
+      },
+      {
+        name: "Epic Challenge",
+        source: "Core",
+        type: "Epic Deed",
+        cp: 1,
+        turns: ["my", "opponent"],
+        phases: ["fight"],
+        when: "Fight phase, when a unit from your army with one or more attached units is selected to fight.",
+        target: "One CHARACTER model in that unit.",
+        effect: "Until the end of the phase, all melee attacks made by that CHARACTER model have the [PRECISION] ability.",
+      },
+      {
+        name: "Tank Shock",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        turns: ["my"],
+        phases: ["charge"],
+        when: "Your Charge phase, just after a VEHICLE unit from your army ends a Charge move within Engagement Range of an enemy unit.",
+        target: "That VEHICLE unit and one enemy unit it is within Engagement Range of.",
+        effect: "Select one melee weapon equipped by a model in your VEHICLE unit. Roll a number of D6 equal to that weapon's Strength. If the Strength is greater than the enemy unit's Toughness, roll two additional D6. For each 5+, the enemy unit suffers 1 mortal wound (max 6).",
+      },
+      {
+        name: "Counter-Offensive",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        turns: ["my", "opponent"],
+        phases: ["fight"],
+        when: "Fight phase, after an enemy unit has fought.",
+        target: "One unit from your army that is within Engagement Range of one or more enemy units and has not been selected to fight this phase.",
+        effect: "Your unit fights next.",
+      },
+      {
+        name: "Rapid Ingress",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        turns: ["opponent"],
+        phases: ["movement"],
+        when: "End of your opponent's Movement phase.",
+        target: "One unit from your army that is in Reserves.",
+        effect: "Your unit can arrive on the battlefield as if it were the Reinforcements step of your Movement phase.",
+        restrictions: "Cannot be used to bring a unit on during a battle round it would not normally be able to arrive in.",
+      },
+      {
+        name: "Fire Overwatch",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 1,
+        turns: ["opponent"],
+        phases: ["movement", "charge"],
+        when: "Your opponent's Movement or Charge phase, just after an enemy unit is set up or starts/ends a Normal, Advance, Fall Back, or Charge move.",
+        target: "One unit from your army within 24\" of that enemy unit and that would be eligible to shoot if it were your Shooting phase.",
+        effect: "Your unit shoots that enemy unit as if it were your Shooting phase. Until the end of the phase, each model in your unit needs an unmodified Hit roll of 6 to score a hit.",
+        restrictions: "Once per turn.",
+      },
+      {
+        name: "Smoke",
+        source: "Core",
+        type: "Wargear",
+        cp: 1,
+        turns: ["opponent"],
+        phases: ["shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One SMOKE unit from your army that was selected as a target.",
+        effect: "Until the end of the phase, all models in your unit have the Benefit of Cover and the Stealth ability.",
+      },
+      {
+        name: "Go to Ground",
+        source: "Core",
+        type: "Battle Tactic",
+        cp: 1,
+        turns: ["opponent"],
+        phases: ["shooting"],
+        when: "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+        target: "One INFANTRY unit from your army that was selected as a target.",
+        effect: "Until the end of the phase, all models in your unit have a 6+ invulnerable save and the Benefit of Cover.",
+      },
+      {
+        name: "Heroic Intervention",
+        source: "Core",
+        type: "Strategic Ploy",
+        cp: 2,
+        turns: ["opponent"],
+        phases: ["charge"],
+        when: "Your opponent's Charge phase, just after an enemy unit ends a Charge move.",
+        target: "One unit from your army within 6\" of that enemy unit (or a VEHICLE WALKER unit) that would be eligible to charge that unit if it were your Charge phase.",
+        effect: "Your unit now declares a charge that targets only that enemy unit; resolve as if it were your Charge phase. Your unit receives no charge bonuses.",
+      },
+    ];
+
+    // ============================================================
+    // ARMY RULES DATA
+    // ============================================================
+    const ARMY_RULES = {
+      vows: {
+        title: "Templar Vows",
+        subtitle: "Army Rule · Choose ONE at the start of the first battle round. Applies to all ADEPTUS ASTARTES models for the entire battle.",
+        items: [
+          {
+            name: "Suffer Not the Unclean to Live",
+            effect: "Units with this Vow can Fall Back and still shoot and charge in the same turn. When models in your unit pile in or consolidate, they can move toward any enemy unit (not just the closest).",
+          },
+          {
+            name: "Uphold the Honour of the Emperor",
+            effect: "INFANTRY units control objectives even after they move away (until an enemy unit takes the objective). INFANTRY units can perform Actions in the same turn they Advanced.",
+          },
+          {
+            name: "Abhor the Witch, Destroy the Witch",
+            effect: "Re-roll Charge rolls against PSYKER units. Melee weapons equipped by models in your unit have the [PRECISION] ability when targeting PSYKER units.",
+          },
+          {
+            name: "Accept Any Challenge, No Matter the Odds",
+            effect: "Melee weapons equipped by models in your unit get +1 Attack and +1 AP. Units with this Vow cannot Fall Back.",
+          },
+        ],
+      },
+      detachment: {
+        title: "Purge and Sanctify",
+        subtitle: "Detachment Rule · Vindication Task Force",
+        items: [
+          {
+            name: "Ancients on Objectives",
+            effect: "While an ANCIENT unit from your army is within range of an objective marker, subtract 1 from the Wound roll against that unit for any attack whose Strength is greater than that unit's Toughness.",
+          },
+          {
+            name: "Zealous Crusaders",
+            effect: "When a CRUSADER SQUAD from your army makes a Righteous Zeal move, you can choose to move it toward the nearest objective marker instead of the nearest enemy unit.",
+          },
+        ],
+      },
+      restrictions: {
+        title: "Heirs of Sigismund",
+        subtitle: "Army Restrictions",
+        body: "Cannot include any ADEPTUS ASTARTES PSYKER models. Cannot include Codex: Space Marines versions of Gladiator Lancer / Reaper / Valiant, Impulsor, Land Raider Crusader, Repulsor, Repulsor Executioner, Sternguard Veteran Squad, or Terminator Squad — use the Black Templars datasheets instead. Cannot use the 1st Company Task Force Detachment.",
+      },
+    };
+
+    const PHASES = [
+      { id: "command", label: "Command", num: "I", icon: Crown },
+      { id: "movement", label: "Movement", num: "II", icon: Sword },
+      { id: "shooting", label: "Shooting", num: "III", icon: Flame },
+      { id: "charge", label: "Charge", num: "IV", icon: Skull },
+      { id: "fight", label: "Fight", num: "V", icon: Shield },
+    ];
+
+    const typeColor = (t) => {
+      switch (t) {
+        case "Battle Tactic": return "text-red-300 border-red-900/60";
+        case "Strategic Ploy": return "text-amber-300 border-amber-900/60";
+        case "Epic Deed": return "text-yellow-200 border-yellow-700/60";
+        case "Wargear": return "text-stone-300 border-stone-600/60";
+        default: return "text-stone-300 border-stone-700";
+      }
+    };
+
+    // ============================================================
+    // COMPONENTS
+    // ============================================================
+    function ArmyRules() {
+      const [open, setOpen] = useState(true);
+      return (
+        <div className="mb-5 border border-stone-800 bg-gradient-to-b from-stone-950 to-black">
+          <button
+            onClick={() => setOpen(!open)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-stone-900/40 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Cross size={18} className="text-red-700" strokeWidth={2.5} />
+              <div className="text-left">
+                <div className="text-sm tracking-[0.2em] uppercase text-amber-50 font-bold" style={{ fontFamily: "Cinzel, serif" }}>
+                  Army Rules
+                </div>
+                <div className="text-[10px] tracking-widest uppercase text-stone-500">Vows · Detachment · Restrictions</div>
+              </div>
+            </div>
+            <div className="text-stone-500">{open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</div>
+          </button>
+
+          {open && (
+            <div className="px-4 pb-4 pt-1 border-t border-stone-900/80 space-y-5">
+              {/* Templar Vows */}
+              <div>
+                <div className="mb-2">
+                  <div className="text-base text-amber-50 tracking-wide" style={{ fontFamily: "Cinzel, serif", fontWeight: 700 }}>
+                    {ARMY_RULES.vows.title}
+                  </div>
+                  <div className="text-[11px] italic text-stone-400 leading-relaxed mt-0.5">
+                    {ARMY_RULES.vows.subtitle}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {ARMY_RULES.vows.items.map((v) => (
+                    <div key={v.name} className="border-l-2 border-red-900/60 pl-3 py-1">
+                      <div className="text-[13px] text-red-200 font-semibold tracking-wide" style={{ fontFamily: "Cinzel, serif" }}>
+                        {v.name}
+                      </div>
+                      <div className="text-[14px] text-stone-200 leading-relaxed mt-0.5">{v.effect}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Detachment Rule */}
+              <div>
+                <div className="mb-2">
+                  <div className="text-base text-amber-50 tracking-wide" style={{ fontFamily: "Cinzel, serif", fontWeight: 700 }}>
+                    {ARMY_RULES.detachment.title}
+                  </div>
+                  <div className="text-[11px] italic text-stone-400 leading-relaxed mt-0.5">
+                    {ARMY_RULES.detachment.subtitle}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {ARMY_RULES.detachment.items.map((v) => (
+                    <div key={v.name} className="border-l-2 border-amber-800/60 pl-3 py-1">
+                      <div className="text-[13px] text-amber-200 font-semibold tracking-wide" style={{ fontFamily: "Cinzel, serif" }}>
+                        {v.name}
+                      </div>
+                      <div className="text-[14px] text-stone-200 leading-relaxed mt-0.5">{v.effect}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Restrictions */}
+              <div>
+                <div className="mb-2">
+                  <div className="text-base text-amber-50 tracking-wide" style={{ fontFamily: "Cinzel, serif", fontWeight: 700 }}>
+                    {ARMY_RULES.restrictions.title}
+                  </div>
+                  <div className="text-[11px] italic text-stone-400 leading-relaxed mt-0.5">
+                    {ARMY_RULES.restrictions.subtitle}
+                  </div>
+                </div>
+                <div className="text-[13px] text-stone-300 leading-relaxed border-l-2 border-stone-700 pl-3 py-1">
+                  {ARMY_RULES.restrictions.body}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function Section({ label, body, accent }) {
+      return (
+        <div>
+          <div className={`text-[10px] uppercase tracking-[0.25em] font-semibold mb-1 ${accent ? "text-red-400" : "text-amber-600/80"}`}>
+            {label}
+          </div>
+          <div className="text-stone-200 text-[15px] leading-relaxed">{body}</div>
+        </div>
+      );
+    }
+
+    function StratagemCard({ s, expanded, onToggle }) {
+      const sourceColor = s.source === "Vindication Task Force"
+        ? "bg-red-950/60 text-red-200 border-red-800"
+        : "bg-stone-800/70 text-stone-300 border-stone-700";
+
+      return (
+        <div className="border border-stone-800 bg-gradient-to-b from-stone-950 to-black hover:border-red-900/60 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            <div className="flex-shrink-0 relative">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-700 to-red-950 border-2 border-red-900 shadow-lg shadow-red-950/60 flex items-center justify-center">
+                <span className="font-serif text-xl font-bold text-amber-100 leading-none">{s.cp}</span>
+              </div>
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] tracking-widest text-amber-200/80 font-semibold">CP</div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <h3 className="text-lg text-amber-50 leading-tight tracking-wide" style={{ fontFamily: "Cinzel, serif" }}>
+                  {s.name}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${typeColor(s.type)} font-semibold`}>
+                  {s.type}
+                </span>
+                <span className={`text-[10px] uppercase tracking-widest px-1.5 py-0.5 border ${sourceColor} font-semibold`}>
+                  {s.source === "Vindication Task Force" ? "Vindication TF" : "Core"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 mt-1 text-stone-500">
+              {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 space-y-3 border-t border-stone-900/80">
+              <Section label="When" body={s.when} />
+              <Section label="Target" body={s.target} />
+              <Section label="Effect" body={s.effect} />
+              {s.restrictions && <Section label="Restrictions" body={s.restrictions} accent />}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function TurnButton({ active, onClick, label, sub, Icon }) {
+      return (
+        <button
+          onClick={onClick}
+          className={`group relative py-4 px-3 border-2 transition-all ${
+            active
+              ? "bg-gradient-to-b from-red-950/80 to-black border-red-700 shadow-lg shadow-red-950/50"
+              : "bg-stone-950 border-stone-800 hover:border-stone-600"
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2.5">
+            <Icon size={22} className={active ? "text-amber-200" : "text-stone-600 group-hover:text-stone-400"} strokeWidth={active ? 2.5 : 1.5} />
+            <div className="text-left">
+              <div className={`text-base tracking-[0.15em] font-bold uppercase ${active ? "text-amber-50" : "text-stone-400"}`} style={{ fontFamily: "Cinzel, serif" }}>
+                {label}
+              </div>
+              <div className={`text-[9px] tracking-widest uppercase ${active ? "text-red-400" : "text-stone-600"}`}>
+                {sub}
+              </div>
+            </div>
+          </div>
+        </button>
+      );
+    }
+
+    // ============================================================
+    // MAIN
+    // ============================================================
+    function App() {
+      const [turn, setTurn] = useState("my");
+      const [phase, setPhase] = useState("command");
+      const [expanded, setExpanded] = useState({});
+
+      const filtered = useMemo(() => {
+        return STRATAGEMS.filter((s) => {
+          const turnMatch = s.turns.includes(turn);
+          const phaseMatch = s.phases.includes("any") || s.phases.includes(phase);
+          return turnMatch && phaseMatch;
+        }).sort((a, b) => {
+          if (a.source !== b.source) return a.source === "Vindication Task Force" ? -1 : 1;
+          return a.cp - b.cp;
+        });
+      }, [turn, phase]);
+
+      const toggle = (name) => setExpanded((e) => ({ ...e, [name]: !e[name] }));
+
+      return (
+        <div className="min-h-screen bg-black text-stone-100">
+          <div className="fixed inset-0 pointer-events-none opacity-[0.04]"
+            style={{
+              backgroundImage: "radial-gradient(circle at 25% 10%, #fff 1px, transparent 1px), radial-gradient(circle at 75% 60%, #fff 1px, transparent 1px)",
+              backgroundSize: "40px 40px, 60px 60px",
+            }}
+          />
+          <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-red-950/10 via-transparent to-black" />
+
+          <div className="relative max-w-3xl mx-auto px-4 py-6">
+            <header className="text-center mb-6 pb-6 border-b-2 border-double border-red-900/60 relative">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <Cross size={20} className="text-red-700" strokeWidth={2.5} />
+                <span className="text-[10px] tracking-[0.4em] text-red-500/80 font-semibold uppercase">
+                  In the Emperor's Name
+                </span>
+                <Cross size={20} className="text-red-700" strokeWidth={2.5} />
+              </div>
+              <h1 className="text-2xl sm:text-4xl text-amber-50 tracking-[0.15em] leading-tight" style={{ fontFamily: "Cinzel, serif", fontWeight: 900 }}>
+                VINDICATION<br />
+                <span className="text-red-600">TASK FORCE</span>
+              </h1>
+              <div className="text-xs mt-2 text-stone-400 tracking-[0.3em] uppercase">Black Templars · Stratagem Codex</div>
+            </header>
+
+            <ArmyRules />
+
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Whose Turn —</div>
+              <div className="grid grid-cols-2 gap-2">
+                <TurnButton active={turn === "my"} onClick={() => setTurn("my")} label="My Turn" sub="Sword & Faith" Icon={Sword} />
+                <TurnButton active={turn === "opponent"} onClick={() => setTurn("opponent")} label="Opponent" sub="Reactive Stratagems" Icon={Shield} />
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-stone-500 mb-2 text-center">— Battle Phase —</div>
+              <div className="grid grid-cols-5 gap-1">
+                {PHASES.map((p) => {
+                  const active = phase === p.id;
+                  const PhaseIcon = p.icon;
+                  return (
+                    <button key={p.id} onClick={() => setPhase(p.id)}
+                      className={`relative py-2.5 px-1 border transition-all ${active ? "bg-red-950/60 border-red-700 text-amber-100" : "bg-stone-950 border-stone-800 text-stone-500 hover:border-stone-600 hover:text-stone-300"}`}>
+                      <div className={`text-[9px] tracking-widest font-bold mb-0.5 ${active ? "text-red-400" : "text-stone-600"}`} style={{ fontFamily: "Cinzel, serif" }}>
+                        {p.num}
+                      </div>
+                      <PhaseIcon size={16} className="mx-auto mb-0.5" strokeWidth={active ? 2.5 : 1.5} />
+                      <div className="text-[10px] leading-tight tracking-wider uppercase font-semibold">{p.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="text-center mb-4 text-[11px] tracking-[0.25em] uppercase text-stone-500">
+              {filtered.length} legal stratagem{filtered.length !== 1 ? "s" : ""}
+              <span className="text-stone-700"> · </span>
+              <span className="text-stone-400">{turn === "my" ? "Your" : "Opponent's"} {PHASES.find((p) => p.id === phase)?.label} Phase</span>
+            </div>
+
+            <div className="space-y-2">
+              {filtered.length === 0 ? (
+                <div className="border border-stone-800 bg-stone-950 p-8 text-center">
+                  <Cross size={32} className="mx-auto mb-3 text-stone-700" />
+                  <div className="text-stone-500 italic">
+                    No stratagems available for this phase.<br />
+                    Conserve your Command Points, Brother.
+                  </div>
+                </div>
+              ) : (
+                filtered.map((s) => (
+                  <StratagemCard key={s.name} s={s} expanded={!!expanded[s.name]} onToggle={() => toggle(s.name)} />
+                ))
+              )}
+            </div>
+
+            <div className="mt-8 pt-5 border-t border-stone-900 text-[11px] text-stone-500 leading-relaxed italic text-center">
+              Each Stratagem can be used only once per phase (unless otherwise stated).<br />
+              Stratagems flagged "Any phase" appear in every phase tab.<br />
+              <span className="text-stone-600">No Pity. No Remorse. No Fear.</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
