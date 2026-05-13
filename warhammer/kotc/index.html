@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>King of the Colosseum — Mission Reference</title>
+  <meta name="description" content="Warhammer 40k King of the Colosseum 500pt tournament reference: primary missions, twists, and tactical secondary missions." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus+SC&family=EB+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body { background: #0a0807; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Marcellus SC', Georgia, serif; letter-spacing: 0.04em; }
+    .font-quote { font-family: 'EB Garamond', Georgia, serif; }
+    #root:empty::before {
+      content: 'Sounding the Cornu...';
+      display: block;
+      color: #57534e;
+      font-family: 'Marcellus SC', serif;
+      letter-spacing: 0.2em;
+      text-align: center;
+      padding: 4rem 1rem;
+      font-size: 14px;
+    }
+    /* Colosseum-themed background bloom */
+    .arena-bg {
+      background:
+        radial-gradient(ellipse at top, rgba(180, 83, 9, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at center 70%, rgba(120, 53, 15, 0.06) 0%, transparent 60%);
+    }
+    /* Subtle stone texture overlay */
+    .stone-texture {
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(214, 188, 138, 0.015) 2px,
+          rgba(214, 188, 138, 0.015) 4px
+        );
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
+
+    // ============================================================
+    // ICONS (SVG, inherits currentColor)
+    // ============================================================
+    const Icon = ({ d, size = 24, strokeWidth = 2, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+        className={className}>{d}</svg>
+    );
+    const ChevronDown = (p) => <Icon {...p} d={<polyline points="6 9 12 15 18 9"/>} />;
+    const ChevronUp = (p) => <Icon {...p} d={<polyline points="18 15 12 9 6 15"/>} />;
+    // Roman shield (rectangular with center boss)
+    const Shield = (p) => <Icon {...p} d={<>
+      <path d="M5 4h14v14a3 3 0 0 1-3 3h-8a3 3 0 0 1-3-3z"/>
+      <circle cx="12" cy="12" r="2"/>
+      <path d="M12 4v16"/>
+    </>} />;
+    // Crossed gladii (swords)
+    const Gladii = (p) => <Icon {...p} d={<>
+      <line x1="3" y1="3" x2="21" y2="21"/>
+      <line x1="21" y1="3" x2="3" y2="21"/>
+      <path d="M3 5l2-2"/>
+      <path d="M21 5l-2-2"/>
+      <path d="M3 19l2 2"/>
+      <path d="M21 19l-2 2"/>
+    </>} />;
+    // Laurel half-wreath (used twice mirrored in header)
+    const Laurel = ({ size = 24, flip = false, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+        className={className} style={flip ? { transform: 'scaleX(-1)' } : {}}>
+        <path d="M20 4c-6 0-12 4-14 12"/>
+        <path d="M17 6c-1 1-1 3 0 4"/>
+        <path d="M14 9c-1 1-1 3 0 4"/>
+        <path d="M11 12c-1 1-1 3 0 4"/>
+        <path d="M8 15c-1 1-1 3 0 4"/>
+      </svg>
+    );
+    // Crown (for "king")
+    const Crown = (p) => <Icon {...p} d={<>
+      <polygon points="3 18 5 8 9 13 12 6 15 13 19 8 21 18 3 18"/>
+      <line x1="5" y1="21" x2="19" y2="21"/>
+    </>} />;
+    // Objective marker / target
+    const Target = (p) => <Icon {...p} d={<>
+      <circle cx="12" cy="12" r="9"/>
+      <circle cx="12" cy="12" r="5"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+    </>} />;
+    // Lightning bolt for Twists (chaos/disruption)
+    const Bolt = (p) => <Icon {...p} d={<polygon points="13 2 4 14 11 14 11 22 20 10 13 10 13 2" />} />;
+    // Scroll for secondary missions
+    const Scroll = (p) => <Icon {...p} d={<>
+      <path d="M4 6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3z"/>
+      <path d="M8 8h7"/>
+      <path d="M8 12h7"/>
+      <path d="M8 16h4"/>
+    </>} />;
+    // Helmet (gladiator)
+    const Helmet = (p) => <Icon {...p} d={<>
+      <path d="M5 12a7 7 0 0 1 14 0v6H5z"/>
+      <path d="M12 5V3"/>
+      <path d="M9 18v3M15 18v3"/>
+    </>} />;
+    // Hourglass (action / time)
+    const Hourglass = (p) => <Icon {...p} d={<>
+      <path d="M6 2h12"/>
+      <path d="M6 22h12"/>
+      <path d="M6 2c0 5 6 7 6 10s-6 5-6 10"/>
+      <path d="M18 2c0 5-6 7-6 10s6 5 6 10"/>
+    </>} />;
+    // Warning triangle (for "When Drawn" conditions)
+    const Warning = (p) => <Icon {...p} d={<>
+      <path d="M12 3l10 18H2z"/>
+      <line x1="12" y1="10" x2="12" y2="14"/>
+      <circle cx="12" cy="17" r="0.5" fill="currentColor"/>
+    </>} />;
+    // Info circle
+    const Info = (p) => <Icon {...p} d={<>
+      <circle cx="12" cy="12" r="9"/>
+      <line x1="12" y1="11" x2="12" y2="16"/>
+      <circle cx="12" cy="8" r="0.5" fill="currentColor"/>
+    </>} />;
+    // Arch (for Colosseum)
+    const Arch = (p) => <Icon {...p} d={<>
+      <path d="M3 21V10a9 9 0 0 1 18 0v11"/>
+      <path d="M3 21h18"/>
+      <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+    </>} />;
+
+    // ============================================================
+    // DATA
+    // ============================================================
+
+    const PRIMARY_MISSIONS = [
+      {
+        name: "Linchpin",
+        flavor: "True victory is built upon a firm foundation. If you cannot hold the centre, then all else will crumble swiftly.",
+        scoring: [
+          {
+            when: "End of the Command phase (or end of your turn if 5th battle round and going second). 2nd battle round onwards.",
+            options: [
+              {
+                label: "Do NOT control your DZ objective",
+                text: "Score 3VP for each objective marker you control."
+              },
+              {
+                label: "DO control your DZ objective",
+                text: "Score 3VP for controlling that DZ objective, AND 5VP for each other objective marker you control (up to 15VP per turn)."
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Take and Hold",
+        flavor: "Several strategic locations have been identified in your vicinity. Your orders are to assault these positions, secure them and hold them at any cost.",
+        scoring: [
+          {
+            when: "End of the Command phase (or end of your turn if 5th battle round and going second). 2nd battle round onwards.",
+            options: [
+              {
+                label: "Per objective controlled",
+                text: "Score 5VP for each objective marker you control (up to 15VP per turn)."
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Terraform",
+        flavor: "Victory here lies in shaping the landscape of the battlefield.",
+        action: {
+          name: "TERRAFORM",
+          starts: "Your Shooting phase.",
+          units: "One or more units from your army, each within range of a different objective marker that is NOT within your deployment zone.",
+          completes: "End of the turn, if the unit performing this Action is still within range of the same objective marker and you control that objective marker.",
+          ifCompleted: "Each of those objective markers is *terraformed* by you. If that objective marker was *terraformed* by your opponent, it no longer is.",
+        },
+        scoring: [
+          {
+            when: "End of the Command phase (or end of your turn if 5th battle round and going second). 2nd battle round onwards.",
+            options: [
+              {
+                label: "Per objective controlled",
+                text: "Score 4VP for each objective marker you control (up to 12VP per turn)."
+              },
+            ],
+          },
+          {
+            when: "End of the turn. 2nd battle round onwards.",
+            options: [
+              {
+                label: "Per terraformed objective",
+                text: "Each player scores 1VP for each objective marker that is *terraformed* by them."
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const TWISTS = [
+      {
+        name: "Ruinscape",
+        flavor: "Decades of war have reduced the structures on this battlefield to hollow ruins. Your warriors stalk and scramble through the skeletal remnants of half-destroyed buildings as they close in upon their enemies.",
+        effect: "Each time a unit makes a Normal or Advance move, it can move horizontally through terrain features.",
+      },
+      {
+        name: "Adapt or Die",
+        flavor: "On a changing battlefield such as this, you must adapt your strategies swiftly and decisively if you are to stand any chance of seizing victory.",
+        kotcNote: "KotC uses Tactical only — the Tactical clause is the one that applies.",
+        effect: "FOR PLAYERS USING TACTICAL MISSIONS: Twice per battle, after drawing a Secondary Mission card, that player can draw another Secondary Mission card, then shuffle one of those two Secondary Mission cards back into their Secondary Mission deck.",
+      },
+      {
+        name: "Lords of War",
+        flavor: "Your warlords are paragons of battle, possessed of both peerless skill at arms and a relentless thirst to demonstrate their martial might in the heaviest of fighting.",
+        effect: "Until the end of the battle, add 3 to the Attacks characteristic of each weapon equipped by WARLORD models (excluding VEHICLES).",
+      },
+      {
+        name: "Point Blank",
+        flavor: "Your soldiers excel at close-range combat, utilising the most unwieldy of ranged weapons with great precision, even as the enemy closes in around them.",
+        effect: "Ranged weapons (excluding Blast weapons) have the [PISTOL] ability.",
+      },
+    ];
+
+    // All 19 Secondary Missions — Tactical scoring only (KotC uses Tactical)
+    const SECONDARY_MISSIONS = [
+      {
+        name: "Behind Enemy Lines",
+        flavor: "Your orders are clear: break through the enemy and cut off their escape routes.",
+        whenDrawn: "If it is the first battle round, you can draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "One unit from your army (excluding AIRCRAFT and Battle-shocked units) is wholly within your opponent's deployment zone.", vp: "3VP" },
+            { text: "Two or more units from your army (excluding AIRCRAFT and Battle-shocked units) are wholly within your opponent's deployment zone.", vp: "4VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Storm Hostile Objective",
+        flavor: "You must dominate the field of battle. Storm every site of tactical import and leave the foe with no place to hide.",
+        whenDrawn: "If it is the first battle round, you can draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "You control one or more objective markers that were controlled by your opponent at the start of the turn.", vp: "4VP" },
+          ]},
+          { when: "End of your turn. 2nd battle round onwards.", options: [
+            { text: "Your opponent did not control any objective markers at the start of the turn, and you control one or more objective markers that you did not control at the start of the turn.", vp: "4VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Engage on All Fronts",
+        flavor: "This area is of extreme importance. You are to lead an immediate all-out assault to capture it and deny it to our enemy for good.",
+        whenDrawn: "Define 'presence' — you have a presence in a table quarter if one or more of your units (excluding AIRCRAFT and Battle-shocked) are wholly within it AND more than 6\" from the centre of the battlefield.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "You have a presence in two table quarters.", vp: "1VP" },
+            { text: "You have a presence in three table quarters.", vp: "2VP" },
+            { text: "You have a presence in four table quarters.", vp: "4VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Establish Locus",
+        flavor: "You must guide allied forces onto the battlefield by any means necessary; this objective must be completed swiftly to pave the road to victory.",
+        action: {
+          name: "ESTABLISH LOCUS",
+          starts: "Your Shooting phase.",
+          units: "One unit from your army.",
+          completes: "End of your turn, if that unit is within your opponent's deployment zone or within 6\" of the centre of the battlefield.",
+          ifCompleted: "Your unit *establishes a locus*.",
+        },
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "Your unit *established a locus* this turn and is within 6\" of the centre of the battlefield.", vp: "2VP" },
+            { text: "Your unit *established a locus* this turn and is within your opponent's deployment zone.", vp: "4VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Cleanse",
+        flavor: "Your forces have identified a series of tainted objectives in this area; these locations must be purified.",
+        action: {
+          name: "CLEANSE",
+          starts: "Your Shooting phase.",
+          units: "One or more units from your army within range of an objective marker that is NOT within your deployment zone.",
+          completes: "End of your turn, if the unit performing this Action is still within range of the same objective marker and you control that objective marker.",
+          ifCompleted: "That objective marker is *cleansed* by your army.",
+        },
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "One objective marker was *cleansed* by your army this turn.", vp: "2VP" },
+            { text: "Two or more objective markers were *cleansed* by your army this turn.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Assassination",
+        flavor: "The enemy looks to their champions for courage. You must identify and eliminate such targets with extreme prejudice.",
+        scoring: [
+          { when: "End of either player's turn.", options: [
+            { text: "One or more enemy CHARACTER models were destroyed this turn.", vp: "5VP" },
+            { text: "All enemy CHARACTER models have been destroyed during the battle.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "No Prisoners",
+        flavor: "Show no mercy. Exterminate your enemies.",
+        scoring: [
+          { when: "While this card is active.", options: [
+            { text: "Each time an enemy unit is destroyed.", vp: "2VP (up to 5VP)" },
+          ]},
+        ],
+      },
+      {
+        name: "Cull the Horde",
+        flavor: "The enemy come forth in teeming masses. Their ranks must be thinned if the day is to be won.",
+        whenDrawn: "If there are no enemy units on the battlefield that satisfy the condition below, you can discard this card and draw a new Secondary Mission card.",
+        scoring: [
+          { when: "End of either player's turn.", options: [
+            { text: "One or more enemy INFANTRY units with a Starting Strength of 13+ (including Attached units) were destroyed this turn.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Bring It Down",
+        flavor: "The opposing army contains numerous heavily armoured units. You must prioritise their destruction.",
+        whenDrawn: "If there are no enemy MONSTER or VEHICLE units on the battlefield, you can discard this card and draw a new Secondary Mission card.",
+        scoring: [
+          { when: "End of either player's turn.", options: [
+            { text: "One or more enemy MONSTER or VEHICLE units were destroyed this turn.", vp: "4VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Defend Stronghold",
+        flavor: "You are charged with the defence of a critical objective. It must not be permitted to fall into enemy hands.",
+        whenDrawn: "If it is the first battle round, draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.",
+        scoring: [
+          { when: "End of your opponent's turn or end of the battle (whichever comes first). 2nd battle round onwards.", options: [
+            { text: "You control one or more objective markers in your deployment zone.", vp: "3VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Marked for Death",
+        flavor: "You have been ordered to eliminate specific enemy assets to ensure victory, no matter how insignificant they may seem.",
+        whenDrawn: "Your opponent must select three units from their army on the battlefield (or all of them if fewer than three remain). These are your Alpha Target units. You then select one unit from your opponent's army to be your Gamma Target. If no enemy units on battlefield: discard and redraw.",
+        scoring: [
+          { when: "End of either player's turn.", options: [
+            { text: "One or more of your Alpha Target units were destroyed (or removed for any reason) this turn.", vp: "5VP" },
+            { text: "None of your Alpha Targets destroyed, but your Gamma Target was destroyed (or removed) this turn.", vp: "2VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Secure No Man's Land",
+        flavor: "You must advance swiftly into no man's land and seize it before the enemy can, lest they take control of the entire battlefield.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "You control one objective marker in No Man's Land.", vp: "2VP" },
+            { text: "You control two or more objective markers in No Man's Land.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Sabotage",
+        flavor: "This region is replete with strategic assets or supply caches vital to your foe. See to it that they are reduced to just so much flaming wreckage.",
+        action: {
+          name: "SABOTAGE",
+          starts: "Your Shooting phase.",
+          units: "One unit from your army that is within a terrain feature and NOT within your deployment zone.",
+          completes: "End of your opponent's next turn or end of the battle (whichever comes first), if your unit is on the battlefield.",
+          ifCompleted: "Your unit *commits sabotage*.",
+        },
+        scoring: [
+          { when: "End of your opponent's turn or end of the battle (whichever comes first).", options: [
+            { text: "Your unit *committed sabotage* this turn and is NOT within your opponent's deployment zone.", vp: "3VP" },
+            { text: "Your unit *committed sabotage* this turn AND is within your opponent's deployment zone.", vp: "6VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Area Denial",
+        flavor: "It is critical that this area is dominated. No enemy vanguard or guerrilla units can be allowed to disrupt your plans.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "One or more units from your army (excl. AIRCRAFT and Battle-shocked) are within 3\" of the centre of the battlefield, AND there are no enemy units within 3\" of the centre.", vp: "2VP" },
+            { text: "One or more units from your army (excl. AIRCRAFT and Battle-shocked) are within 3\" of the centre, AND there are no enemy units within 6\" of the centre.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Recover Assets",
+        flavor: "You must locate and reclaim scattered strategic assets.",
+        whenDrawn: "If you are playing an Incursion mission, OR if there are fewer than three units from your army on the battlefield, you can discard this card and draw a new Secondary Mission card.",
+        kotcNote: "KotC is 500pts (sub-Incursion). You will often have <3 units anyway — this card will frequently be discardable.",
+        action: {
+          name: "RECOVER ASSETS",
+          starts: "Your Shooting phase.",
+          units: "Two or more units from your army, each wholly within a different one of: your deployment zone; No Man's Land; your opponent's deployment zone.",
+          completes: "End of your turn, if either two or three of those units are on the battlefield.",
+          ifCompleted: "Those units *recover assets*.",
+        },
+        scoring: [
+          { when: "End of your turn or end of the battle (whichever comes first).", options: [
+            { text: "Two of your units *recovered assets* this turn.", vp: "3VP" },
+            { text: "Three or more of your units *recovered assets* this turn.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "A Tempting Target",
+        flavor: "An opportunity to seize a valuable asset has been identified, but the enemy are likely to use it as bait in a trap. Move to secure the site, but be wary of enemy ambushes.",
+        whenDrawn: "Your opponent must select one objective in No Man's Land to be your Tempting Target objective marker.",
+        scoring: [
+          { when: "End of either player's turn.", options: [
+            { text: "You control your Tempting Target objective marker.", vp: "5VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Extend Battle Lines",
+        flavor: "The battleground is conquered one yard at a time. Lead your forces forward and establish a strong presence in the area.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "You control one or more objective markers within your deployment zone AND one or more objective markers within No Man's Land.", vp: "4VP" },
+            { text: "You control one or more objective markers within No Man's Land.", vp: "2VP" },
+          ]},
+        ],
+      },
+      {
+        name: "Overwhelming Force",
+        flavor: "You must scour the enemy from the face of the battlefield.",
+        designerNote: "Destroyed Leader and Bodyguard units count separately for the purposes of scoring this Secondary Mission, provided that Attached unit started the turn within range of an objective marker.",
+        scoring: [
+          { when: "While this card is active.", options: [
+            { text: "Each time an enemy unit that started the turn within range of an objective marker is destroyed.", vp: "3VP (up to 5VP)" },
+          ]},
+        ],
+      },
+      {
+        name: "Display of Might",
+        flavor: "Intimidation is the most potent of weapons. Degrade the combat abilities of your opponent to demonstrate your superiority and erode enemy morale.",
+        whenDrawn: "If it is the first battle round, draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.",
+        scoring: [
+          { when: "End of your turn.", options: [
+            { text: "There are more units from your army than from your opponent's army wholly within No Man's Land.", vp: "4VP" },
+          ]},
+        ],
+      },
+    ];
+
+    // KotC format rules
+    const FORMAT_RULES = {
+      pointsLimit: "500 pts",
+      rules: [
+        "Must include at least one CHARACTER as your Warlord. No Epic Heroes.",
+        "Must include at least two non-CHARACTER INFANTRY units.",
+        "No units with Toughness 10+ (T9 is the maximum).",
+        "Rule of One (2026): only one of each unit, except Battleline & Dedicated Transports (two of each allowed).",
+        "Enhancements allowed. Standard matched-play list-building otherwise applies.",
+        "Fully painted, WYSIWYG required for tournaments.",
+      ],
+      battlefield: [
+        "Deployment zones are 9\" from the board edge.",
+        "All ruins block line of sight infinitely upwards and provide cover.",
+        "Colosseum wall is 4\" tall and impassible. Units on one side cannot be charged or engaged from the other side — the wall must be scaled or units must go around. Units cannot end a move on top of the wall.",
+      ],
+      missionSelect: [
+        "Winner of the Attacker/Defender roll-off selects EITHER the Primary Mission OR the Twist.",
+        "Their opponent makes the other selection.",
+        "All players use Tactical Secondaries (Fixed Missions are NOT used in KotC).",
+      ],
+    };
+
+    // ============================================================
+    // SHARED COMPONENTS
+    // ============================================================
+    function Markdown({ text }) {
+      // Render *italic* segments
+      const parts = text.split(/(\*[^*]+\*)/g);
+      return (
+        <>
+          {parts.map((part, i) => {
+            if (part.startsWith("*") && part.endsWith("*")) {
+              return <em key={i} className="text-amber-200/90 not-italic font-medium">{part.slice(1, -1)}</em>;
+            }
+            return <span key={i}>{part}</span>;
+          })}
+        </>
+      );
+    }
+
+    function ActionBlock({ action }) {
+      return (
+        <div className="border border-amber-900/50 bg-amber-950/15 p-3 mt-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Hourglass size={14} className="text-amber-400/80" strokeWidth={2}/>
+            <span className="text-[10px] tracking-[0.3em] uppercase text-amber-400/90 font-semibold">
+              {action.name} (Action)
+            </span>
+          </div>
+          <div className="space-y-1.5 text-[12.5px] leading-relaxed">
+            <div className="grid grid-cols-[60px_1fr] gap-2">
+              <div className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-semibold pt-[3px]">Starts</div>
+              <div className="text-stone-200"><Markdown text={action.starts}/></div>
+            </div>
+            <div className="grid grid-cols-[60px_1fr] gap-2">
+              <div className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-semibold pt-[3px]">Units</div>
+              <div className="text-stone-200"><Markdown text={action.units}/></div>
+            </div>
+            <div className="grid grid-cols-[60px_1fr] gap-2">
+              <div className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-semibold pt-[3px]">Completes</div>
+              <div className="text-stone-200"><Markdown text={action.completes}/></div>
+            </div>
+            <div className="grid grid-cols-[60px_1fr] gap-2">
+              <div className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-semibold pt-[3px]">If Done</div>
+              <div className="text-stone-200"><Markdown text={action.ifCompleted}/></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ScoringBlock({ scoring }) {
+      return (
+        <div className="space-y-3 mt-2">
+          {scoring.map((s, i) => (
+            <div key={i}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="h-px flex-grow bg-amber-900/40"></div>
+                <div className="text-[10px] tracking-[0.2em] uppercase text-amber-400/80 font-semibold">
+                  {s.when}
+                </div>
+                <div className="h-px flex-grow bg-amber-900/40"></div>
+              </div>
+              <div className="space-y-2">
+                {s.options.map((opt, j) => (
+                  <div key={j} className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 min-w-[68px] text-right">
+                      {opt.vp && (
+                        <div className="inline-block px-2 py-0.5 border border-amber-600/60 bg-amber-950/40 font-display text-amber-200 text-xs font-semibold">
+                          {opt.vp}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 pt-0.5">
+                      {opt.label && (
+                        <div className="text-[11px] tracking-wider uppercase text-stone-400 font-semibold mb-0.5">
+                          {opt.label}
+                        </div>
+                      )}
+                      <div className="text-[13px] text-stone-200 leading-relaxed">
+                        <Markdown text={opt.text}/>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ============================================================
+    // CARDS
+    // ============================================================
+    function PrimaryCard({ m, expanded, onToggle }) {
+      return (
+        <div className="border border-amber-900/50 bg-gradient-to-b from-stone-950 to-black hover:border-amber-700/70 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-amber-700 via-amber-900 to-stone-950 border-2 border-amber-600/80 flex items-center justify-center shadow-lg shadow-amber-950/40">
+              <Target size={22} className="text-amber-100" strokeWidth={1.8}/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display text-xl text-amber-50 leading-tight">{m.name}</h3>
+              <div className="text-[10px] tracking-[0.25em] uppercase text-amber-400/70 mt-0.5">Primary Mission</div>
+            </div>
+            <div className="flex-shrink-0 mt-1 text-amber-200/40">
+              {expanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 border-t border-amber-900/30">
+              <p className="font-quote italic text-stone-400 text-[14px] leading-relaxed mb-3">
+                "{m.flavor}"
+              </p>
+              {m.action && <ActionBlock action={m.action} />}
+              <ScoringBlock scoring={m.scoring}/>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function TwistCard({ t, expanded, onToggle }) {
+      return (
+        <div className="border border-red-900/50 bg-gradient-to-b from-stone-950 to-black hover:border-red-700/70 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-800 via-red-950 to-stone-950 border-2 border-red-600/70 flex items-center justify-center shadow-lg shadow-red-950/40" style={{clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'}}>
+              <Bolt size={20} className="text-amber-200" strokeWidth={2}/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display text-xl text-amber-50 leading-tight">{t.name}</h3>
+              <div className="text-[10px] tracking-[0.25em] uppercase text-red-400/80 mt-0.5">Twist</div>
+            </div>
+            <div className="flex-shrink-0 mt-1 text-red-300/40">
+              {expanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 border-t border-red-900/30">
+              <p className="font-quote italic text-stone-400 text-[14px] leading-relaxed mb-3">
+                "{t.flavor}"
+              </p>
+              {t.kotcNote && (
+                <div className="mb-3 border-l-2 border-amber-600 bg-amber-950/20 px-3 py-2">
+                  <div className="flex items-start gap-2">
+                    <Crown size={13} className="text-amber-400 mt-0.5 flex-shrink-0" strokeWidth={2}/>
+                    <div className="text-[12px] text-amber-100/90 leading-relaxed">
+                      <span className="font-semibold tracking-wider text-[10px] uppercase text-amber-400">KotC: </span>
+                      {t.kotcNote}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="border-l-2 border-red-600/60 pl-3 py-1">
+                <div className="text-[10px] tracking-[0.2em] uppercase text-red-400/80 font-semibold mb-1">Effect</div>
+                <div className="text-[13.5px] text-stone-200 leading-relaxed">{t.effect}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function SecondaryCard({ s, expanded, onToggle }) {
+      const hasAction = !!s.action;
+      const hasWhenDrawn = !!s.whenDrawn;
+
+      return (
+        <div className="border border-stone-700/60 bg-gradient-to-b from-stone-950 to-black hover:border-amber-800/60 transition-colors">
+          <button onClick={onToggle} className="w-full text-left p-4 flex items-start gap-3">
+            <div className="flex-shrink-0 w-11 h-11 bg-stone-900 border border-stone-700 flex items-center justify-center">
+              <Scroll size={18} className="text-stone-400" strokeWidth={1.8}/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display text-lg text-stone-100 leading-tight">{s.name}</h3>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                {hasAction && (
+                  <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 border border-amber-700/60 text-amber-300 font-semibold inline-flex items-center gap-1">
+                    <Hourglass size={9} strokeWidth={2.5}/> Action
+                  </span>
+                )}
+                {hasWhenDrawn && (
+                  <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 border border-yellow-700/50 text-yellow-300/90 font-semibold inline-flex items-center gap-1">
+                    <Warning size={9} strokeWidth={2.5}/> When Drawn
+                  </span>
+                )}
+                {s.kotcNote && (
+                  <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 border border-amber-600/60 bg-amber-950/30 text-amber-200 font-semibold inline-flex items-center gap-1">
+                    <Crown size={9} strokeWidth={2.5}/> KotC Note
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex-shrink-0 mt-1 text-stone-500">
+              {expanded ? <ChevronUp size={18}/> : <ChevronDown size={18}/>}
+            </div>
+          </button>
+
+          {expanded && (
+            <div className="px-4 pb-4 pt-1 border-t border-stone-800">
+              <p className="font-quote italic text-stone-500 text-[13px] leading-relaxed mb-2">
+                "{s.flavor}"
+              </p>
+
+              {s.kotcNote && (
+                <div className="my-3 border-l-2 border-amber-600 bg-amber-950/20 px-3 py-2">
+                  <div className="flex items-start gap-2">
+                    <Crown size={13} className="text-amber-400 mt-0.5 flex-shrink-0" strokeWidth={2}/>
+                    <div className="text-[12px] text-amber-100/90 leading-relaxed">
+                      <span className="font-semibold tracking-wider text-[10px] uppercase text-amber-400">KotC: </span>
+                      {s.kotcNote}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {hasWhenDrawn && (
+                <div className="my-3 border-l-2 border-yellow-700/70 bg-yellow-950/15 px-3 py-2">
+                  <div className="flex items-start gap-2">
+                    <Warning size={13} className="text-yellow-400/90 mt-0.5 flex-shrink-0" strokeWidth={2}/>
+                    <div className="text-[12px] text-stone-200 leading-relaxed">
+                      <span className="font-semibold tracking-wider text-[10px] uppercase text-yellow-300/90">When Drawn: </span>
+                      {s.whenDrawn}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {hasAction && <ActionBlock action={s.action}/>}
+
+              <ScoringBlock scoring={s.scoring}/>
+
+              {s.designerNote && (
+                <div className="mt-3 border border-stone-800 bg-stone-950 px-3 py-2">
+                  <div className="flex items-start gap-2">
+                    <Info size={12} className="text-stone-500 mt-0.5 flex-shrink-0" strokeWidth={2}/>
+                    <div className="text-[11.5px] italic text-stone-400 leading-relaxed">
+                      <span className="not-italic font-semibold tracking-wider text-[9px] uppercase text-stone-500">Designer's Note: </span>
+                      {s.designerNote}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============================================================
+    // FORMAT INFO PANEL
+    // ============================================================
+    function FormatRules() {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="mb-5 border border-amber-900/50 bg-gradient-to-b from-stone-950 to-black">
+          <button onClick={() => setOpen(!open)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-amber-950/15 transition-colors">
+            <div className="flex items-center gap-3">
+              <Arch size={20} className="text-amber-400/80" strokeWidth={1.8}/>
+              <div className="text-left">
+                <div className="font-display text-lg text-amber-50 leading-none">Format Rules</div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-amber-400/60 mt-1">500pt · King of the Colosseum</div>
+              </div>
+            </div>
+            <div className="text-amber-200/40">{open ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}</div>
+          </button>
+
+          {open && (
+            <div className="px-4 pb-4 pt-1 border-t border-amber-900/30 space-y-4">
+              <div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-amber-400/80 font-semibold mb-2">List Building</div>
+                <ul className="space-y-1.5 list-none">
+                  {FORMAT_RULES.rules.map((r, i) => (
+                    <li key={i} className="flex gap-2 text-[13px] text-stone-200 leading-relaxed">
+                      <span className="text-amber-500/80 flex-shrink-0">▸</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-amber-400/80 font-semibold mb-2">The Arena</div>
+                <ul className="space-y-1.5 list-none">
+                  {FORMAT_RULES.battlefield.map((r, i) => (
+                    <li key={i} className="flex gap-2 text-[13px] text-stone-200 leading-relaxed">
+                      <span className="text-amber-500/80 flex-shrink-0">▸</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-amber-400/80 font-semibold mb-2">Mission Selection</div>
+                <ul className="space-y-1.5 list-none">
+                  {FORMAT_RULES.missionSelect.map((r, i) => (
+                    <li key={i} className="flex gap-2 text-[13px] text-stone-200 leading-relaxed">
+                      <span className="text-amber-500/80 flex-shrink-0">▸</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============================================================
+    // MAIN APP
+    // ============================================================
+    function App() {
+      const [tab, setTab] = useState("primary"); // primary | twists | secondary
+      const [expanded, setExpanded] = useState({});
+
+      const toggle = (key) => setExpanded((e) => ({ ...e, [key]: !e[key] }));
+
+      const tabs = [
+        { id: "primary", label: "Primary", count: PRIMARY_MISSIONS.length, Icon: Target },
+        { id: "twists", label: "Twists", count: TWISTS.length, Icon: Bolt },
+        { id: "secondary", label: "Secondary", count: SECONDARY_MISSIONS.length, Icon: Scroll },
+      ];
+
+      return (
+        <div className="min-h-screen bg-black text-stone-100 relative">
+          <div className="fixed inset-0 pointer-events-none arena-bg" />
+          <div className="fixed inset-0 pointer-events-none stone-texture" />
+
+          <div className="relative max-w-3xl mx-auto px-4 py-6">
+            {/* ============ HEADER ============ */}
+            <header className="text-center mb-6 pb-6 border-b border-amber-900/40">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <Laurel size={26} className="text-amber-500/70"/>
+                <Crown size={20} className="text-amber-400" strokeWidth={1.8}/>
+                <Laurel size={26} flip className="text-amber-500/70"/>
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl text-amber-50 leading-tight">
+                King of the Colosseum
+              </h1>
+              <div className="text-[11px] mt-2 text-stone-400 tracking-[0.35em] uppercase">
+                Warhammer 40,000 · 500 pts
+              </div>
+              <div className="mt-3 flex items-center justify-center gap-2 text-stone-500">
+                <div className="h-px w-12 bg-amber-900/50"></div>
+                <span className="font-quote italic text-stone-400 text-sm">Mission · Twist · Secondary</span>
+                <div className="h-px w-12 bg-amber-900/50"></div>
+              </div>
+            </header>
+
+            {/* ============ FORMAT RULES ============ */}
+            <FormatRules/>
+
+            {/* ============ TABS ============ */}
+            <div className="mb-5">
+              <div className="grid grid-cols-3 gap-1">
+                {tabs.map((t) => {
+                  const active = tab === t.id;
+                  const TabIcon = t.Icon;
+                  return (
+                    <button key={t.id} onClick={() => setTab(t.id)}
+                      className={`relative py-3 px-2 border-2 transition-all ${
+                        active
+                          ? "bg-gradient-to-b from-amber-950/60 to-black border-amber-600 shadow-lg shadow-amber-950/40"
+                          : "bg-stone-950 border-stone-800 hover:border-stone-600"
+                      }`}>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <TabIcon size={20} className={active ? "text-amber-300" : "text-stone-500"} strokeWidth={active ? 2 : 1.5}/>
+                        <div className={`font-display text-sm tracking-wider leading-none ${active ? "text-amber-50" : "text-stone-400"}`}>
+                          {t.label}
+                        </div>
+                        <div className={`text-[9px] tracking-widest ${active ? "text-amber-400/80" : "text-stone-600"}`}>
+                          {t.count} CARD{t.count !== 1 ? "S" : ""}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ============ CONTENT ============ */}
+            {tab === "primary" && (
+              <div className="space-y-2">
+                <div className="text-center text-[11px] tracking-[0.25em] uppercase text-stone-500 mb-4">
+                  Attacker (or roll-off winner) selects one — unless the opponent selected the Twist
+                </div>
+                {PRIMARY_MISSIONS.map((m) => (
+                  <PrimaryCard key={m.name} m={m}
+                    expanded={!!expanded[`p:${m.name}`]}
+                    onToggle={() => toggle(`p:${m.name}`)}/>
+                ))}
+              </div>
+            )}
+
+            {tab === "twists" && (
+              <div className="space-y-2">
+                <div className="text-center text-[11px] tracking-[0.25em] uppercase text-stone-500 mb-4">
+                  Defender (or roll-off winner) selects one — unless the opponent selected the Primary
+                </div>
+                {TWISTS.map((t) => (
+                  <TwistCard key={t.name} t={t}
+                    expanded={!!expanded[`t:${t.name}`]}
+                    onToggle={() => toggle(`t:${t.name}`)}/>
+                ))}
+              </div>
+            )}
+
+            {tab === "secondary" && (
+              <div className="space-y-2">
+                <div className="text-center text-[11px] tracking-[0.25em] uppercase text-stone-500 mb-4">
+                  Tactical Missions only · Draw 2, replenish from deck
+                </div>
+                {SECONDARY_MISSIONS.map((s) => (
+                  <SecondaryCard key={s.name} s={s}
+                    expanded={!!expanded[`s:${s.name}`]}
+                    onToggle={() => toggle(`s:${s.name}`)}/>
+                ))}
+              </div>
+            )}
+
+            {/* ============ FOOTER ============ */}
+            <div className="mt-8 pt-5 border-t border-amber-900/30 text-[11px] text-stone-500 leading-relaxed text-center space-y-1">
+              <div className="font-quote italic text-stone-400">"Ave, Imperator. Morituri te salutant."</div>
+              <div className="text-stone-600 text-[10px] tracking-widest uppercase mt-2">
+                Rules: Chapter Approved 2025-26 · Format: Play On Tabletop
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
